@@ -4,10 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'development',  // Explicitly set mode to development
-  entry: './src/main.js',
+  mode: 'development',
+  entry: './src/index.js',  // Updated entry point
   output: {
-    filename: 'main.js',
+    filename: 'index.js',  // Updated output filename
     path: path.resolve(__dirname, '../build'),
     publicPath: '/',
   },
@@ -16,10 +16,6 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
-      {
-        test: /\.less$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
       },
       {
         test: /\.(png|jpg|gif|svg)$/i,
@@ -32,22 +28,22 @@ module.exports = {
   },
   devServer: {
     static: {
-      directory: path.join(__dirname, '../build'),
+      directory: path.join(__dirname, 'build'),
     },
     compress: true,
     port: 8080,
     open: true,
     historyApiFallback: {
-      index: '/main.html',  // Ensure main.html is served as the default file
+      index: 'index.html',  // Serve index.html by default
     },
     client: {
-      logging: 'verbose',  // Keep verbose logging for now
+      logging: 'verbose',
     },
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/main.html',
-      filename: 'main.html',
+      template: './src/index.html',  // Updated template
+      filename: 'index.html',  // Updated output filename
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -56,7 +52,7 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-      filename: 'main.css',
+      filename: 'index.css',  // Updated output filename
     }),
   ],
 };
