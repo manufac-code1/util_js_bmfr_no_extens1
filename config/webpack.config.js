@@ -1,4 +1,5 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
@@ -7,29 +8,29 @@ module.exports = {
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, '../build'),
-    publicPath: '/',
   },
-  mode: 'development',
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.less$/,
-        use: ['style-loader', 'css-loader', 'less-loader'],
+        test: /\.less$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|jpg|gif|svg)$/i,
         type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name][ext][query]',
+        },
       },
     ],
   },
   devServer: {
     static: {
       directory: path.join(__dirname, '../build'),
-      watch: true,
     },
     compress: true,
     port: 8080,
@@ -38,14 +39,16 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/main.html',
-      filename: 'index.html', // Output as index.html to maintain consistency
+      filename: 'main.html',  // Ensure this generates main.html
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: path.resolve(__dirname, '../src/libs'), to: 'libs' }, // Ensure libraries are copied over
-        { from: path.resolve(__dirname, '../src/data'), to: 'data' }, // Ensure data files are copied over
-        { from: path.resolve(__dirname, '../src/libs/themes'), to: 'libs/themes' }, // Ensure themes are copied over
+        { from: './src/libs', to: 'libs' },  // Copy libs directory
+        { from: './src/data', to: 'data' },  // Copy data directory
       ],
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'main.css',  // Ensure CSS outputs to main.css
     }),
   ],
 };
