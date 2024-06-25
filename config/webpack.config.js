@@ -1,49 +1,41 @@
 const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'development',
-  entry: './src/index.js',  // Updated entry point
+  entry: './src/index.js',
   output: {
-    filename: 'index.js',  // Updated output filename
     path: path.resolve(__dirname, '../build'),
-    publicPath: '/',
+    filename: 'index.js',
   },
   module: {
     rules: [
       {
-        test: /\.css$/i,
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+      {
+        test: /\.css$/,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpg|gif|svg)$/i,
+        test: /\.(png|jpg|gif|svg)$/,
         type: 'asset/resource',
-        generator: {
-          filename: 'assets/[name][ext][query]',
-        },
       },
     ],
   },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'build'),
-    },
-    compress: true,
-    port: 8080,
-    open: true,
-    historyApiFallback: {
-      index: 'index.html',  // Serve index.html by default
-    },
-    client: {
-      logging: 'verbose',
-    },
-  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',  // Updated template
-      filename: 'index.html',  // Updated output filename
+      template: './src/index.html',
+      filename: 'index.html',
+      minify: false,
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'index.css',
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -51,8 +43,15 @@ module.exports = {
         { from: './src/data', to: 'data' },
       ],
     }),
-    new MiniCssExtractPlugin({
-      filename: 'index.css',  // Updated output filename
-    }),
   ],
+  devServer: {
+    static: {
+      directory: path.join(__dirname, '../build'),
+    },
+    compress: true,
+    port: 9000,
+  },
+  optimization: {
+    minimize: false,
+  },
 };

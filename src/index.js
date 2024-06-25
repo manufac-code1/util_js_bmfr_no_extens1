@@ -1,7 +1,7 @@
-import './main.css';
+import './index.css';
 
 document.addEventListener('DOMContentLoaded', function () {
-  fetch('src/data/specific_node_33645.json')
+  fetch('data/specific_node_33645.json')
   .then(response => response.json())
   .then(data => {
     console.log('Fetched data:', data); // Log fetched data

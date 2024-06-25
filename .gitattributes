@@ -8,3 +8,16 @@
 *.txt    text
 *.js     text
 *.json   text
+*.html   text
+*.jsx    text
+*.ts     text
+*.tsx    text
+*.sh     text
+*.yml    text
+*.yaml   text
+*.min.js text
+*.map    text
+
+# Webpack related files
+*.config.js text
+*.bundle.js text
