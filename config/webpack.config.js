@@ -1,4 +1,3 @@
-// Updated webpack.config.js
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -34,9 +33,17 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    alias: {
+      jstree$: path.resolve(__dirname, '../src/libs/jstree.min.js'),
+      jquery$: path.resolve(__dirname, '../src/libs/jQuery.min.js'),
+    },
+  },
   devServer: {
     static: {
       directory: path.join(__dirname, '../build'),
+      serveIndex: true, // Enable directory listing
+      watch: true, // Enable watching of files for changes
     },
     compress: true,
     port: 8080,

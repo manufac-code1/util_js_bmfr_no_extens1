@@ -1,7 +1,8 @@
-import './index.css';
-import { createAODM } from './createAODM.js';
+import './libs/jstree.min.js';
+import { createAODM } from './createAODM';
+import $ from './libs/jQuery.min.js';
 
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function() {
   fetch('./data/specific_node_33645.json')
     .then(response => response.json())
     .then(data => {
@@ -10,19 +11,19 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log("AODM Array: ", AODM);
       console.log("AODM Dictionary: ", dictionaryMap);
 
-      // Ensure jsTree data format
-      const jsTreeData = AODM.map(node => ({
+      const formattedData = AODM.map(node => ({
         id: node.id,
-        parent: node.parentId ? node.parentId : '#', // assuming root nodes have no parentId
+        parent: node.parentId === '0' ? '#' : node.parentId,
         text: node.title,
-        icon: node.type === 'bookmark' ? 'file' : 'folder',
+        icon: node.type === 'folder' ? 'jstree-folder' : 'jstree-file',
+        children: node.children
       }));
-      
-      console.log("Formatted Data for jsTree: ", jsTreeData);
+
+      console.log("Formatted Data for jsTree: ", formattedData);
 
       $('#jstree_demo_div').jstree({
         'core': {
-          'data': jsTreeData,
+          'data': formattedData,
           'themes': {
             'name': 'default-dark',
             'dots': true,
