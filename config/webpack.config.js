@@ -42,14 +42,16 @@ module.exports = {
   devServer: {
     static: {
       directory: path.join(__dirname, '../build'),
-      serveIndex: true, // Enable directory listing
-      watch: true, // Enable watching of files for changes
     },
     compress: true,
     port: 8080,
     open: true,
-    client: {
-      logging: 'verbose',
+    devMiddleware: {
+      publicPath: '/',
+      writeToDisk: true,
+    },
+    headers: {
+      'Content-Type': 'text/css',
     },
   },
   plugins: [
