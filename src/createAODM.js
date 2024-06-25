@@ -1,14 +1,5 @@
-function traverse(node) {
-    if (node.children && Array.isArray(node.children)) {
-        node.children.forEach(child => {
-            traverse(child);
-        });
-    } else {
-        console.warn('Node does not have children property:', node);
-    }
-}
-
-function createAODM(data) {
+// Updated createAODM.js
+export function createAODM(data) {
     console.log('Fetched bookmarks data:', data);
     if (!data.children || !Array.isArray(data.children)) {
         console.error('Top level object does not have children property', data);

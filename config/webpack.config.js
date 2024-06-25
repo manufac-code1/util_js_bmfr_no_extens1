@@ -1,15 +1,19 @@
+// Updated webpack.config.js
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  mode: 'development',  // Explicitly set mode to development
-  entry: './src/index.js',
+  mode: 'development',
+  entry: {
+    index: './src/index.js',
+    createAODM: './src/createAODM.js',
+  },
   output: {
-    filename: 'index.js',  // Changed from 'main.js' to 'index.js'
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, '../build'),
-    publicPath: '/',  // Set to root directory
+    publicPath: '/',
   },
   module: {
     rules: [
@@ -32,19 +36,19 @@ module.exports = {
   },
   devServer: {
     static: {
-      directory: path.join(__dirname, '../build'),  // Correct path to serve from
+      directory: path.join(__dirname, '../build'),
     },
     compress: true,
     port: 8080,
     open: true,
     client: {
-      logging: 'verbose',  // Keep verbose logging for now
+      logging: 'verbose',
     },
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',  // Changed from 'main.html' to 'index.html'
-      filename: 'index.html',  // Changed from 'main.html' to 'index.html'
+      template: './src/index.html',
+      filename: 'index.html',
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -53,7 +57,7 @@ module.exports = {
       ],
     }),
     new MiniCssExtractPlugin({
-      filename: 'index.css',  // Changed from 'main.css' to 'index.css'
+      filename: 'index.css',
     }),
   ],
 };
