@@ -20,5 +20,11 @@
   "liveSassCompile.settings.excludeList": [
     "**/node_modules/**",
     ".vscode/**"
-  ]
+  ],
+  "files.exclude": {
+    "node_modules": true,
+    ".gitattributes": true,
+    "package-lock.json": true,
+    "package.json": true
+  }
 }

@@ -8,13 +8,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const formattedData = data.children.map(node => formatJsTreeNode(node));
     console.log('Formatted data:', formattedData); // Log formatted data
     $('#bookmarkTree').jstree({
-      core: {
-        data: formattedData,
-        check_callback: true
-      },
-      themes: {
-        name: 'default-dark',
-        responsive: true
+      'core': {
+        'data': formattedData,
+        'check_callback': true,
+        'themes': {
+          'name': 'default-dark',
+          'dots': true,
+          'icons': true,
+          'url': 'libs/themes/default-dark/style.css' // Ensure the correct path to the theme's CSS file
+        }
       }
     });
   }).catch(error => console.error('Error loading JSON data:', error));
