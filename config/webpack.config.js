@@ -1,41 +1,50 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  mode: 'development',  // Explicitly set mode to development
   entry: './src/index.js',
   output: {
+    filename: 'index.js',  // Changed from 'main.js' to 'index.js'
     path: path.resolve(__dirname, '../build'),
-    filename: 'index.js',
+    publicPath: '/',  // Set to root directory
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
-      },
-      {
-        test: /\.css$/,
+        test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.less$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/i,
         type: 'asset/resource',
+        generator: {
+          filename: 'assets/[name][ext][query]',
+        },
       },
     ],
   },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, '../build'),  // Correct path to serve from
+    },
+    compress: true,
+    port: 8080,
+    open: true,
+    client: {
+      logging: 'verbose',  // Keep verbose logging for now
+    },
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html',
-      filename: 'index.html',
-      minify: false,
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'index.css',
+      template: './src/index.html',  // Changed from 'main.html' to 'index.html'
+      filename: 'index.html',  // Changed from 'main.html' to 'index.html'
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -43,15 +52,8 @@ module.exports = {
         { from: './src/data', to: 'data' },
       ],
     }),
+    new MiniCssExtractPlugin({
+      filename: 'index.css',  // Changed from 'main.css' to 'index.css'
+    }),
   ],
-  devServer: {
-    static: {
-      directory: path.join(__dirname, '../build'),
-    },
-    compress: true,
-    port: 9000,
-  },
-  optimization: {
-    minimize: false,
-  },
 };
