@@ -15,3 +15,6 @@ build/
 
 # Ignore compiled output
 dist/
+
+# Ignore personal bookmarks JSON file to protect sensitive information
+src/data/full_bookmarks.json
