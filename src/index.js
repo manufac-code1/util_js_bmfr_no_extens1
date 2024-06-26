@@ -1,73 +1,68 @@
-import $ from 'jquery';
-import 'jstree';
+import './index.css';
 
-$(document).ready(function() {
-    // Fetch the JSON data from the new location
-    $.getJSON('libs/data/specific_node_33645.json', function(data) {
-        // Convert the JSON data to an array of objects
-        const bookmarksArray = convertToJsTreeFormat(data.children);
-        
-        // Generate the dictionary from the array of objects
-        const bookmarksDict = generateDictionaryFromArray(bookmarksArray);
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('data/specific_node_33645.json')
+    .then(response => response.json())
+    .then(data => {
+      console.log('Fetched data:', data); // Log fetched data
+      const bookmarksArray = data.children.map(node => formatJsTreeNode(node));
+      console.log('Bookmarks Array:', bookmarksArray); // Log bookmarks array
+      
+      // Generate dictionary from bookmarksArray
+      const bookmarksDict = generateDictionaryFromArray(bookmarksArray);
+      console.log('Bookmarks Dictionary:', bookmarksDict); // Log bookmarks dictionary
 
-        // Log the array of objects and dictionary to the console for inspection
-        console.log(bookmarksArray);
-        console.log(bookmarksDict);
-        
-        // Initialize jsTree with the array of objects
-        $('#jstree').jstree({
-            'core': {
-                'data': bookmarksArray,
-                'check_callback': true,
-                'themes': {
-                    'name': 'default',
-                    'dots': true,
-                    'icons': true
-                }
-            }
-        });
-    });
+      // Use the bookmarksArray directly for jsTree
+      $('#bookmarkTree').jstree({
+        'core': {
+          'data': bookmarksArray,
+          'check_callback': true,
+          'themes': {
+            'name': 'default-dark',
+            'dots': true,
+            'icons': true,
+            'url': 'libs/themes/default-dark/style.css',  // Ensure the correct path to the theme's CSS file
+          },
+        },
+      });
+    })
+    .catch(error => console.error('Error loading JSON data:', error));
 });
 
-// Function to convert JSON data to jsTree format
-function convertToJsTreeFormat(children) {
-    return children.map(child => {
-        const node = {
-            'text': child.title,
-            'children': child.children ? convertToJsTreeFormat(child.children) : [],
-            'a_attr': child.url ? { 'href': child.url } : {}
-        };
-        node.id = child.id; // Ensure each node has an id for dictionary lookup
-        return node;
-    });
+function formatJsTreeNode(node) {
+  const formattedNode = {
+    id: node.id,
+    text: node.title,
+    children: node.children ? node.children.map(child => formatJsTreeNode(child)) : false,
+    a_attr: { href: node.url }
+  };
+  return formattedNode;
 }
 
-// Function to generate a dictionary from the array of objects
 function generateDictionaryFromArray(array) {
-    const dict = {};
-    array.forEach(node => {
-        dict[node.id] = node;
-        if (node.children) {
-            Object.assign(dict, generateDictionaryFromArray(node.children));
-        }
-    });
-    return dict;
+  const dict = {};
+  array.forEach(node => {
+    dict[node.id] = node;
+    if (node.children) {
+      Object.assign(dict, generateDictionaryFromArray(node.children));
+    }
+  });
+  return dict;
 }
 
-// Function to update the array and regenerate the dictionary
 function updateArrayAndDict(array, dict, newBookmarkData) {
-    // Clear the existing array and dictionary
-    array.length = 0;
-    for (let key in dict) delete dict[key];
+  // Clear the existing array and dictionary
+  array.length = 0;
+  for (let key in dict) delete dict[key];
 
-    // Process the new data
-    const updatedArray = convertToJsTreeFormat(newBookmarkData);
-    array.push(...updatedArray);
-    const updatedDict = generateDictionaryFromArray(updatedArray);
+  // Process the new data
+  const updatedArray = newBookmarkData.map(node => formatJsTreeNode(node));
+  array.push(...updatedArray);
+  const updatedDict = generateDictionaryFromArray(updatedArray);
 
-    // Log updated structures for inspection
-    console.log(updatedArray);
-    console.log(updatedDict);
+  // Log updated structures for inspection
+  console.log(updatedArray);
+  console.log(updatedDict);
 
-    return { updatedArray, updatedDict };
+  return { updatedArray, updatedDict };
 }
