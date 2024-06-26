@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log('Fetched data:', data); // Log fetched data
       const bookmarksArray = data.children.map(node => formatJsTreeNode(node));
       console.log('Bookmarks Array:', bookmarksArray); // Log bookmarks array
-      
+
       // Generate dictionary from bookmarksArray
       const bookmarksDict = generateDictionaryFromArray(bookmarksArray);
       console.log('Bookmarks Dictionary:', bookmarksDict); // Log bookmarks dictionary
@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'url': 'libs/themes/default-dark/style.css',  // Ensure the correct path to the theme's CSS file
           },
         },
+        'state': { 'key': 'bookmarkTreeState' },
+        'plugins': ['state', 'types', 'search', 'lazy']
       });
     })
     .catch(error => console.error('Error loading JSON data:', error));
@@ -32,9 +34,10 @@ document.addEventListener('DOMContentLoaded', function () {
 function formatJsTreeNode(node) {
   const formattedNode = {
     id: node.id,
-    text: node.title,
-    children: node.children ? node.children.map(child => formatJsTreeNode(child)) : false,
-    a_attr: { href: node.url }
+    text: node.title || 'NULL_NAME__NO_FIELD_DATA',
+    children: Array.isArray(node.children) ? node.children.map(child => formatJsTreeNode(child)) : false,
+    state: node.state,
+    a_attr: node.url ? { href: node.url } : {}
   };
   return formattedNode;
 }
