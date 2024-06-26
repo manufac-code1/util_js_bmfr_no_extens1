@@ -25,6 +25,8 @@
     "node_modules": true,
     ".gitattributes": true,
     "package-lock.json": true,
-    "package.json": true
+    "package.json": true,
+    ".vscode": true,
+    "public": true
   }
 }
