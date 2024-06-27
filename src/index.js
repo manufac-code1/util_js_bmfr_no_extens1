@@ -26,12 +26,12 @@ function parseInitialData(data) {
 function cleanParsedData(data) {
   return data.map((node) => {
     let title;
+
+    // Ensure all nodes have a valid title
     if (node.title) {
       title = node.title;
-    } else if (node.url === "chrome://bookmarks/") {
-      title = "⭐️ [chrome://bookmarks/] (do not mod)]";
     } else {
-      title = node.url ? "Unnamed Bookmark" : "Unnamed Folder";
+      title = node.url ? "Unnamed Bookmark" : "New Folder";
     }
 
     return {
@@ -46,12 +46,12 @@ function cleanParsedData(data) {
 // Applying post-parsing renaming to nodes for consistency in the AODM
 function applyPostParsingRenaming(sst) {
   sst.forEach((node) => {
-    if (
-      node.url === "chrome://bookmarks/" &&
-      node.title === "NULL_NAME__NO_FIELD_DATA"
-    ) {
-      node.title = "⭐️ [chrome://bookmarks/]";
+    // Standardize the name for the `chrome://bookmarks/` bookmark
+    if (node.url === "chrome://bookmarks/") {
+      node.title = "⭐️ [chrome://bookmarks/] (do not mod)";
     }
+
+    // Apply other renaming rules as needed
     if (node.children) {
       applyPostParsingRenaming(node.children);
     }
