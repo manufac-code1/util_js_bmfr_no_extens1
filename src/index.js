@@ -1,7 +1,7 @@
 // 1. CONFIGURATION VARIABLES
 import "./index.css";
 
-// Configuration Variables
+// Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
 const OtherBookmarksOpen = false;
 const MobileBookmarksOpen = false;
@@ -9,7 +9,7 @@ const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
 // 2. PARSE INITIAL DATA FUNCTION
-// Parsing Functions
+// Parsing the initial data structure into a usable format, preparing it for integration into the AODM
 function parseInitialData(data) {
   return data.map((node) => {
     const children = node.children ? parseInitialData(node.children) : [];
@@ -22,6 +22,7 @@ function parseInitialData(data) {
   });
 }
 
+// Cleaning the parsed data to ensure it has the correct properties for the AODM
 function cleanParsedData(data) {
   return data.map((node) => {
     let title;
@@ -42,6 +43,7 @@ function cleanParsedData(data) {
   });
 }
 
+// Applying post-parsing renaming to nodes for consistency in the AODM
 function applyPostParsingRenaming(sst) {
   sst.forEach((node) => {
     if (
@@ -57,9 +59,9 @@ function applyPostParsingRenaming(sst) {
   return sst;
 }
 
-// 3. APPLY POST-PARSING RENAMING FUNCTION
-// jsTree Initialization Functions
-function initializeJsTree(bookmarkData) {
+// 3. RENAME NODES POST-PARSING
+// Setting up and populating the jsTree with the formatted bookmark data, using the AODM
+function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
   $("#bookmarkTree").jstree({
     core: {
@@ -89,8 +91,8 @@ function initializeJsTree(bookmarkData) {
   });
 }
 
-// 4. INITIALIZE JSTREE FUNCTION
-// Utility Functions
+// 4. INITIALIZE JSTREE
+// Finding the path to a specific node by ID within the AODM
 function findPathToNode(nodes, targetId, path = []) {
   for (const node of nodes) {
     const currentPath = [...path, node.id];
@@ -107,6 +109,7 @@ function findPathToNode(nodes, targetId, path = []) {
   return null;
 }
 
+// Formatting nodes for jsTree, ensuring all necessary properties are set for the AODM
 function formatJsTreeNode(node) {
   const defaultState = { opened: false, selected: false };
   const formattedNode = {
@@ -122,6 +125,7 @@ function formatJsTreeNode(node) {
   return formattedNode;
 }
 
+// Getting child nodes of a specific parent node, used for hierarchical data traversal within the AODM
 function getChildNodes(data, parentId) {
   const result = [];
   function findNodes(nodes) {
@@ -137,6 +141,7 @@ function getChildNodes(data, parentId) {
   return result;
 }
 
+// Generating a dictionary from an array of nodes for quick lookups by ID, a key part of the AODM
 function generateDictionaryFromArray(array) {
   const dict = {};
   array.forEach((node) => {
@@ -148,6 +153,7 @@ function generateDictionaryFromArray(array) {
   return dict;
 }
 
+// Updating the array and dictionary with new bookmark data, ensuring synchronization within the AODM
 function updateArrayAndDict(array, dict, newBookmarkData) {
   array.length = 0;
   for (let key in dict) delete dict[key];
@@ -162,6 +168,7 @@ function updateArrayAndDict(array, dict, newBookmarkData) {
   return { updatedArray, updatedDict };
 }
 
+// Marking nodes as opened along a specific path, used for expanding parts of the tree within the AODM
 function markNodesAsOpened(nodes, path) {
   if (path.length === 0) {
     return nodes;
@@ -180,6 +187,7 @@ function markNodesAsOpened(nodes, path) {
   });
 }
 
+// Setting the state of a specific node, such as marking it as opened or closed within the AODM
 function setNodeState(nodes, nodeId, newState) {
   for (const node of nodes) {
     if (node.id === nodeId) {
@@ -195,8 +203,8 @@ function setNodeState(nodes, nodeId, newState) {
   }
 }
 
-// 5. DOMCONTENTLOADED EVENT LISTENER
-// DOM Content Loaded Event
+// 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
+// Handling the DOMContentLoaded event to initialize the jsTree
 document.addEventListener("DOMContentLoaded", function () {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
@@ -246,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "SECTION 5g: Root nodes before jsTree initialization:",
         rootNodes
       );
-      initializeJsTree(rootNodes);
+      setupAndPopulateJsTree(rootNodes);
     })
     .catch((error) => console.error("Error loading JSON data:", error));
 });
