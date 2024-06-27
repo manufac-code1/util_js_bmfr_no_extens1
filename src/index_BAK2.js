@@ -14,63 +14,49 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((data) => {
       console.log("Fetched data:", data);
 
-      // Function to parse the bookmarks into a consistent format
-      function parseBookmarks(nodes) {
-        return nodes.map((node) => {
-          const title = node.text || "NULL_NAME__NO_FIELD_DATA";
-          const children = node.children ? parseBookmarks(node.children) : [];
-          return {
-            id: node.id,
-            title: title,
-            url: node.data ? node.data.url : undefined,
-            children: children,
-          };
-        });
+      // Ensure each node has a unique ID and handle special Chrome bookmark node
+      function ensureUniqueIds(
+        nodes,
+        parentId = null,
+        depth = 0,
+        logCount = { count: 0 }
+      ) {
+        return nodes
+          .filter((node, index) => {
+            if (logCount.count < 30) {
+              console.log(
+                `Processing node: ${node.id}, parentId: ${parentId}, relative position: ${index}`
+              );
+              logCount.count++;
+            }
+            // Exclude the special Chrome bookmark node
+            if (parentId === "1" && node.url === "chrome://bookmarks/") {
+              console.log("Excluding special Chrome bookmark node:", node);
+              return false;
+            }
+            return true;
+          })
+          .map((node, index) => {
+            const uniqueId = parentId ? `${parentId}-${index}` : `${index}`;
+            return {
+              ...node,
+              id: node.id || uniqueId,
+              title: node.title || "NULL_NAME__NO_FIELD_DATA",
+              children: node.children
+                ? ensureUniqueIds(node.children, uniqueId, depth + 1, logCount)
+                : node.children,
+              parent: parentId,
+            };
+          });
       }
 
-      // Parse the data into a hierarchical structure
-      const parsedData = parseBookmarks(data.children);
-      console.log("Parsed data:", parsedData);
+      const dataWithUniqueIds = ensureUniqueIds(data.children, "0");
+      console.log("Data with unique IDs:", dataWithUniqueIds);
 
-      // Function to initialize jsTree with the parsed bookmark data
-      function initializeJsTree(bookmarkData) {
-        $("#bookmarkTree").jstree({
-          core: {
-            data: bookmarkData.map((node) => formatJsTreeNode(node)),
-            check_callback: true,
-            themes: {
-              name: "default-dark",
-              dots: true,
-              icons: true,
-              url: "libs/themes/default-dark/style.css",
-            },
-          },
-          types: {
-            default: {
-              icon: "jstree-folder",
-            },
-            file: {
-              icon: "jstree-file",
-            },
-          },
-          state: { key: "bookmarkTreeState" },
-          plugins: ["state", "types", "search", "lazy"],
-        });
-      }
+      // Filter out node 0 and directly use its children as root nodes
+      let rootNodes = dataWithUniqueIds;
 
-      // Function to format nodes for jsTree
-      function formatJsTreeNode(node) {
-        return {
-          id: node.id,
-          text: node.title,
-          children: node.children.map((child) => formatJsTreeNode(child)),
-          state: node.state,
-          a_attr: node.url ? { href: node.url } : {},
-          type: node.url ? "file" : "default",
-        };
-      }
-
-      // Function to find the path to a specific node by its ID
+      // Function to find the path to the target node
       function findPathToNode(nodes, targetId, path = []) {
         for (const node of nodes) {
           const currentPath = [...path, node.id];
@@ -87,11 +73,10 @@ document.addEventListener("DOMContentLoaded", function () {
         return null;
       }
 
-      // Find the path to the test folder node
-      const pathToTestNode = findPathToNode(parsedData, renamingTestFolderId);
+      const pathToTestNode = findPathToNode(rootNodes, renamingTestFolderId);
       console.log("Path to test node:", pathToTestNode);
 
-      // Function to mark nodes along a given path as opened
+      // Function to mark nodes along the path as opened
       function markNodesAsOpened(nodes, path) {
         if (path.length === 0) {
           return nodes;
@@ -110,13 +95,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // Function to set the state of a specific node
+      // Function to set node state
       function setNodeState(nodes, nodeId, newState) {
         for (const node of nodes) {
           if (node.id === nodeId) {
             node.state = { opened: newState };
             if (newState && node.parent) {
-              setNodeState(parsedData, node.parent, true);
+              setNodeState(rootNodes, node.parent, true);
             }
             return;
           }
@@ -126,8 +111,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // Apply default states to the root nodes
-      let rootNodes = parsedData.map((node) => {
+      // Apply default states first
+      rootNodes = rootNodes.map((node) => {
         if (node.id === "1") {
           return { ...node, state: { opened: BookmarksBarOpen } };
         } else if (node.id === "2") {
@@ -138,19 +123,56 @@ document.addEventListener("DOMContentLoaded", function () {
         return node;
       });
 
-      // Mark nodes as opened if the test folder state is enabled
+      // Apply specific test folder state if needed
       if (RenamingTestingFolderOpen && pathToTestNode) {
         rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
       }
 
       console.log("Root nodes before jsTree initialization:", rootNodes);
+
       // Initialize jsTree with the modified root nodes
-      initializeJsTree(rootNodes);
+      $("#bookmarkTree").jstree({
+        core: {
+          data: rootNodes.map((node) => formatJsTreeNode(node)),
+          check_callback: true,
+          themes: {
+            name: "default-dark",
+            dots: true,
+            icons: true,
+            url: "libs/themes/default-dark/style.css",
+          },
+        },
+        types: {
+          default: {
+            // Default type for folders
+            icon: "jstree-folder",
+          },
+          file: {
+            // Type for bookmarks
+            icon: "jstree-file", // Use built-in jsTree file icon
+          },
+        },
+        state: { key: "bookmarkTreeState" },
+        plugins: ["state", "types", "search", "lazy"],
+      });
     })
     .catch((error) => console.error("Error loading JSON data:", error));
 });
 
-// Function to get child nodes by parent ID
+function formatJsTreeNode(node) {
+  const formattedNode = {
+    id: node.id,
+    text: node.title || "NULL_NAME__NO_FIELD_DATA",
+    children: Array.isArray(node.children)
+      ? node.children.map((child) => formatJsTreeNode(child))
+      : false,
+    state: node.state,
+    a_attr: node.url ? { href: node.url } : {},
+    type: node.url ? "file" : "default", // Assign type based on presence of URL
+  };
+  return formattedNode;
+}
+
 function getChildNodes(data, parentId) {
   const result = [];
   function findNodes(nodes) {
@@ -166,7 +188,6 @@ function getChildNodes(data, parentId) {
   return result;
 }
 
-// Function to generate a dictionary from an array of nodes
 function generateDictionaryFromArray(array) {
   const dict = {};
   array.forEach((node) => {
@@ -178,7 +199,6 @@ function generateDictionaryFromArray(array) {
   return dict;
 }
 
-// Function to update an array and dictionary with new bookmark data
 function updateArrayAndDict(array, dict, newBookmarkData) {
   // Clear the existing array and dictionary
   array.length = 0;
