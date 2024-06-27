@@ -1,3 +1,4 @@
+// 1. CONFIGURATION VARIABLES
 import "./index.css";
 
 // Configuration Variables
@@ -7,150 +8,115 @@ const MobileBookmarksOpen = false;
 const RenamingTestingFolderOpen = true;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Fetch bookmark data and initialize jsTree
-  fetch("data/chrome_bookmarks_all.json")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Fetched data:", data);
+// 2. PARSE INITIAL DATA FUNCTION
+// Parsing Functions
+function parseInitialData(data) {
+  return data.map((node) => {
+    const children = node.children ? parseInitialData(node.children) : [];
+    return {
+      id: node.id,
+      title: node.text || null,
+      url: node.data ? node.data.url : undefined,
+      children: children,
+    };
+  });
+}
 
-      // Function to parse the bookmarks into a consistent format
-      function parseBookmarks(nodes) {
-        return nodes.map((node) => {
-          const title = node.text || "NULL_NAME__NO_FIELD_DATA";
-          const children = node.children ? parseBookmarks(node.children) : [];
-          return {
-            id: node.id,
-            title: title,
-            url: node.data ? node.data.url : undefined,
-            children: children,
-          };
-        });
+function applyPostParsingRenaming(sst) {
+  sst.forEach((node) => {
+    if (
+      node.url === "chrome://bookmarks/" &&
+      node.title === "NULL_NAME__NO_FIELD_DATA"
+    ) {
+      node.title = "⭐️ [chrome://bookmarks/]";
+    }
+    if (node.children) {
+      applyPostParsingRenaming(node.children);
+    }
+  });
+  return sst;
+}
+
+function cleanParsedData(data) {
+  return data.map((node) => {
+    let title;
+    if (node.title) {
+      title = node.title;
+    } else if (node.url === "chrome://bookmarks/") {
+      title = "⭐️ Chrome Bookmarks";
+    } else {
+      title = node.url ? "Unnamed Bookmark" : "Unnamed Folder";
+    }
+
+    return {
+      ...node,
+      title: title,
+      state: node.state || { opened: false },
+      children: node.children ? cleanParsedData(node.children) : [],
+    };
+  });
+}
+
+// 3. APPLY POST-PARSING RENAMING FUNCTION
+// jsTree Initialization Functions
+function initializeJsTree(bookmarkData) {
+  console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
+  $("#bookmarkTree").jstree({
+    core: {
+      data: bookmarkData.map((node) => formatJsTreeNode(node)),
+      check_callback: true,
+      themes: {
+        name: "default-dark",
+        dots: true,
+        icons: true,
+        url: "libs/themes/default-dark/style.css",
+      },
+    },
+    types: {
+      default: {
+        icon: "jstree-folder",
+      },
+      file: {
+        icon: "jstree-file",
+      },
+    },
+    state: { key: "bookmarkTreeState" },
+    plugins: ["state", "types", "search", "lazy"],
+  });
+}
+
+// 4. INITIALIZE JSTREE FUNCTION
+// Utility Functions
+function findPathToNode(nodes, targetId, path = []) {
+  for (const node of nodes) {
+    const currentPath = [...path, node.id];
+    if (node.id === targetId) {
+      return currentPath;
+    }
+    if (node.children) {
+      const result = findPathToNode(node.children, targetId, currentPath);
+      if (result) {
+        return result;
       }
+    }
+  }
+  return null;
+}
 
-      // Parse the data into a hierarchical structure
-      const parsedData = parseBookmarks(data.children);
-      console.log("Parsed data:", parsedData);
+function formatJsTreeNode(node) {
+  console.log("SECTION 4e: Formatting node:", node);
+  const formattedNode = {
+    id: node.id,
+    text: node.title,
+    children: node.children.map((child) => formatJsTreeNode(child)),
+    state: node.state,
+    a_attr: node.url ? { href: node.url } : {},
+    type: node.url ? "file" : "default",
+  };
+  console.log("SECTION 4f: Formatted node:", formattedNode);
+  return formattedNode;
+}
 
-      // Function to initialize jsTree with the parsed bookmark data
-      function initializeJsTree(bookmarkData) {
-        $("#bookmarkTree").jstree({
-          core: {
-            data: bookmarkData.map((node) => formatJsTreeNode(node)),
-            check_callback: true,
-            themes: {
-              name: "default-dark",
-              dots: true,
-              icons: true,
-              url: "libs/themes/default-dark/style.css",
-            },
-          },
-          types: {
-            default: {
-              icon: "jstree-folder",
-            },
-            file: {
-              icon: "jstree-file",
-            },
-          },
-          state: { key: "bookmarkTreeState" },
-          plugins: ["state", "types", "search", "lazy"],
-        });
-      }
-
-      // Function to format nodes for jsTree
-      function formatJsTreeNode(node) {
-        return {
-          id: node.id,
-          text: node.title,
-          children: node.children.map((child) => formatJsTreeNode(child)),
-          state: node.state,
-          a_attr: node.url ? { href: node.url } : {},
-          type: node.url ? "file" : "default",
-        };
-      }
-
-      // Function to find the path to a specific node by its ID
-      function findPathToNode(nodes, targetId, path = []) {
-        for (const node of nodes) {
-          const currentPath = [...path, node.id];
-          if (node.id === targetId) {
-            return currentPath;
-          }
-          if (node.children) {
-            const result = findPathToNode(node.children, targetId, currentPath);
-            if (result) {
-              return result;
-            }
-          }
-        }
-        return null;
-      }
-
-      // Find the path to the test folder node
-      const pathToTestNode = findPathToNode(parsedData, renamingTestFolderId);
-      console.log("Path to test node:", pathToTestNode);
-
-      // Function to mark nodes along a given path as opened
-      function markNodesAsOpened(nodes, path) {
-        if (path.length === 0) {
-          return nodes;
-        }
-        return nodes.map((node) => {
-          if (node.id === path[0]) {
-            return {
-              ...node,
-              state: { opened: true },
-              children: node.children
-                ? markNodesAsOpened(node.children, path.slice(1))
-                : node.children,
-            };
-          }
-          return node;
-        });
-      }
-
-      // Function to set the state of a specific node
-      function setNodeState(nodes, nodeId, newState) {
-        for (const node of nodes) {
-          if (node.id === nodeId) {
-            node.state = { opened: newState };
-            if (newState && node.parent) {
-              setNodeState(parsedData, node.parent, true);
-            }
-            return;
-          }
-          if (node.children) {
-            setNodeState(node.children, nodeId, newState);
-          }
-        }
-      }
-
-      // Apply default states to the root nodes
-      let rootNodes = parsedData.map((node) => {
-        if (node.id === "1") {
-          return { ...node, state: { opened: BookmarksBarOpen } };
-        } else if (node.id === "2") {
-          return { ...node, state: { opened: OtherBookmarksOpen } };
-        } else if (node.id === "3") {
-          return { ...node, state: { opened: MobileBookmarksOpen } };
-        }
-        return node;
-      });
-
-      // Mark nodes as opened if the test folder state is enabled
-      if (RenamingTestingFolderOpen && pathToTestNode) {
-        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-      }
-
-      console.log("Root nodes before jsTree initialization:", rootNodes);
-      // Initialize jsTree with the modified root nodes
-      initializeJsTree(rootNodes);
-    })
-    .catch((error) => console.error("Error loading JSON data:", error));
-});
-
-// Function to get child nodes by parent ID
 function getChildNodes(data, parentId) {
   const result = [];
   function findNodes(nodes) {
@@ -166,7 +132,6 @@ function getChildNodes(data, parentId) {
   return result;
 }
 
-// Function to generate a dictionary from an array of nodes
 function generateDictionaryFromArray(array) {
   const dict = {};
   array.forEach((node) => {
@@ -178,20 +143,102 @@ function generateDictionaryFromArray(array) {
   return dict;
 }
 
-// Function to update an array and dictionary with new bookmark data
 function updateArrayAndDict(array, dict, newBookmarkData) {
-  // Clear the existing array and dictionary
   array.length = 0;
   for (let key in dict) delete dict[key];
 
-  // Process the new data
   const updatedArray = newBookmarkData.map((node) => formatJsTreeNode(node));
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArray(updatedArray);
 
-  // Log updated structures for inspection
-  console.log(updatedArray);
-  console.log(updatedDict);
+  console.log("SECTION 4q: ", updatedArray);
+  console.log("SECTION 4r: ", updatedDict);
 
   return { updatedArray, updatedDict };
 }
+
+function markNodesAsOpened(nodes, path) {
+  if (path.length === 0) {
+    return nodes;
+  }
+  return nodes.map((node) => {
+    if (node.id === path[0]) {
+      return {
+        ...node,
+        state: { opened: true },
+        children: node.children
+          ? markNodesAsOpened(node.children, path.slice(1))
+          : node.children,
+      };
+    }
+    return node;
+  });
+}
+
+function setNodeState(nodes, nodeId, newState) {
+  for (const node of nodes) {
+    if (node.id === nodeId) {
+      node.state = { opened: newState };
+      if (newState && node.parent) {
+        setNodeState(nodes, node.parent, true);
+      }
+      return;
+    }
+    if (node.children) {
+      setNodeState(node.children, nodeId, newState);
+    }
+  }
+}
+
+// 5. DOMCONTENTLOADED EVENT LISTENER
+// DOM Content Loaded Event
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("data/chrome_bookmarks_small.json")
+    .then((response) => response.json())
+    .then((data) => {
+      // console.log("SECTION 5: Fetched data:", data);
+
+      const parsedData = parseInitialData(data.children);
+      // console.log("SECTION 5a: Parsed data:", parsedData);
+
+      const cleanedData = cleanParsedData(parsedData);
+      // console.log("SECTION 5b: Cleaned data:", cleanedData);
+
+      const bookmarkArray = [];
+      const bookmarkDict = {};
+
+      const { updatedArray, updatedDict } = updateArrayAndDict(
+        bookmarkArray,
+        bookmarkDict,
+        cleanedData
+      );
+
+      // console.log("SECTION 5c: Updated array:", updatedArray);
+      // console.log("SECTION 5d: Updated dictionary:", updatedDict);
+
+      const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+      // console.log("SECTION 5e: Path to test node:", pathToTestNode);
+
+      let rootNodes = updatedArray.map((node) => {
+        if (node.id === "1") {
+          return { ...node, state: { opened: BookmarksBarOpen } };
+        } else if (node.id === "2") {
+          return { ...node, state: { opened: OtherBookmarksOpen } };
+        } else if (node.id === "3") {
+          return { ...node, state: { opened: MobileBookmarksOpen } };
+        }
+        return node;
+      });
+
+      if (RenamingTestingFolderOpen && pathToTestNode) {
+        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+      }
+
+      console.log(
+        "SECTION 5f: Root nodes before jsTree initialization:",
+        rootNodes
+      );
+      initializeJsTree(rootNodes);
+    })
+    .catch((error) => console.error("Error loading JSON data:", error));
+});
