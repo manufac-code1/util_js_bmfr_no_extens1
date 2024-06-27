@@ -9,12 +9,12 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 
 document.addEventListener("DOMContentLoaded", function () {
   // Fetch bookmark data and initialize jsTree
-  fetch("data/full_bookmarks.json")
+  fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((data) => {
       console.log("Fetched data:", data);
 
-      // Ensure each node has a unique ID
+      // Ensure each node has a unique ID and handle special Chrome bookmark node
       function ensureUniqueIds(
         nodes,
         parentId = null,
@@ -24,15 +24,14 @@ document.addEventListener("DOMContentLoaded", function () {
         return nodes
           .filter((node, index) => {
             if (logCount.count < 30) {
-              // Limit logging to the first 30 nodes
               console.log(
                 `Processing node: ${node.id}, parentId: ${parentId}, relative position: ${index}`
               );
               logCount.count++;
             }
-            // Exclude all nodes with parent ID "1"
-            if (parentId === "1") {
-              console.log('Excluding node with parent ID "1":', node);
+            // Exclude the special Chrome bookmark node
+            if (parentId === "1" && node.url === "chrome://bookmarks/") {
+              console.log("Excluding special Chrome bookmark node:", node);
               return false;
             }
             return true;
@@ -42,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return {
               ...node,
               id: node.id || uniqueId,
+              title: node.title || "NULL_NAME__NO_FIELD_DATA",
               children: node.children
                 ? ensureUniqueIds(node.children, uniqueId, depth + 1, logCount)
                 : node.children,
@@ -50,18 +50,11 @@ document.addEventListener("DOMContentLoaded", function () {
           });
       }
 
-      const dataWithUniqueIds = ensureUniqueIds(data);
+      const dataWithUniqueIds = ensureUniqueIds(data.children, "0");
       console.log("Data with unique IDs:", dataWithUniqueIds);
 
       // Filter out node 0 and directly use its children as root nodes
-      let rootNodes = dataWithUniqueIds.find(
-        (node) => node.id === "0"
-      ).children;
-
-      // Directly filter out the specific node
-      rootNodes = rootNodes.filter(
-        (node) => !(node.parentId === "1" && node.url === "chrome://bookmarks")
-      );
+      let rootNodes = dataWithUniqueIds;
 
       // Function to find the path to the target node
       function findPathToNode(nodes, targetId, path = []) {
@@ -164,19 +157,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     })
     .catch((error) => console.error("Error loading JSON data:", error));
-
-  // Add event listeners for control bar buttons
-  document.getElementById("backupBtn").addEventListener("click", function () {
-    console.log("Backup button clicked");
-  });
-
-  document.getElementById("renameBtn").addEventListener("click", function () {
-    console.log("Rename button clicked");
-  });
-
-  document.getElementById("undoBtn").addEventListener("click", function () {
-    console.log("Undo button clicked");
-  });
 });
 
 function formatJsTreeNode(node) {
