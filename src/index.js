@@ -196,58 +196,139 @@ function setNodeState(nodes, nodeId, newState) {
 
 // 5. DOMCONTENTLOADED EVENT LISTENER
 // DOM Content Loaded Event
-// 5. DOMCONTENTLOADED EVENT LISTENER
-// DOM Content Loaded Event
 document.addEventListener("DOMContentLoaded", function () {
-  fetch("data/chrome_bookmarks_small.json")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("SECTION 5: Fetched data:", data);
+  const data = {
+    id: "0",
+    text: "",
+    data: {},
+    children: [
+      {
+        id: "1",
+        text: "Bookmarks Bar",
+        data: {},
+        children: [
+          {
+            id: "12055",
+            text: "",
+            data: {
+              url: "chrome://bookmarks/",
+            },
+            children: [],
+          },
+          {
+            id: "33630",
+            text: "example_parent1_w_only_1_child",
+            data: {},
+            children: [
+              {
+                id: "33631",
+                text: "example_parent2_w_only_1_child",
+                data: {},
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 
-      const parsedData = parseInitialData(data.children);
-      console.log("SECTION 5a: Parsed data:", parsedData);
+  console.log("SECTION 5: Hardcoded data:", data);
 
-      const cleanedData = cleanParsedData(parsedData);
-      console.log("SECTION 5b: Cleaned data:", cleanedData);
+  const parsedData = parseInitialData(data.children);
+  console.log("SECTION 5a: Parsed data:", parsedData);
 
-      const renamedData = applyPostParsingRenaming(cleanedData);
-      console.log("SECTION 5c: Renamed data:", renamedData);
+  const cleanedData = cleanParsedData(parsedData);
+  console.log("SECTION 5b: Cleaned data:", cleanedData);
 
-      const bookmarkArray = [];
-      const bookmarkDict = {};
+  const renamedData = applyPostParsingRenaming(cleanedData);
+  console.log("SECTION 5c: Renamed data:", renamedData);
 
-      const { updatedArray, updatedDict } = updateArrayAndDict(
-        bookmarkArray,
-        bookmarkDict,
-        renamedData
-      );
+  const bookmarkArray = [];
+  const bookmarkDict = {};
 
-      console.log("SECTION 5d: Updated array:", updatedArray);
-      console.log("SECTION 5e: Updated dictionary:", updatedDict);
+  const { updatedArray, updatedDict } = updateArrayAndDict(
+    bookmarkArray,
+    bookmarkDict,
+    renamedData
+  );
 
-      const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-      console.log("SECTION 5f: Path to test node:", pathToTestNode);
+  console.log("SECTION 5d: Updated array:", updatedArray);
+  console.log("SECTION 5e: Updated dictionary:", updatedDict);
 
-      let rootNodes = updatedArray.map((node) => {
-        if (node.id === "1") {
-          return { ...node, state: { opened: BookmarksBarOpen } };
-        } else if (node.id === "2") {
-          return { ...node, state: { opened: OtherBookmarksOpen } };
-        } else if (node.id === "3") {
-          return { ...node, state: { opened: MobileBookmarksOpen } };
-        }
-        return node;
-      });
+  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+  console.log("SECTION 5f: Path to test node:", pathToTestNode);
 
-      if (RenamingTestingFolderOpen && pathToTestNode) {
-        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-      }
+  let rootNodes = updatedArray.map((node) => {
+    if (node.id === "1") {
+      return { ...node, state: { opened: BookmarksBarOpen } };
+    } else if (node.id === "2") {
+      return { ...node, state: { opened: OtherBookmarksOpen } };
+    } else if (node.id === "3") {
+      return { ...node, state: { opened: MobileBookmarksOpen } };
+    }
+    return node;
+  });
 
-      console.log(
-        "SECTION 5g: Root nodes before jsTree initialization:",
-        rootNodes
-      );
-      initializeJsTree(rootNodes);
-    })
-    .catch((error) => console.error("Error loading JSON data:", error));
+  if (RenamingTestingFolderOpen && pathToTestNode) {
+    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+  }
+
+  console.log(
+    "SECTION 5g: Root nodes before jsTree initialization:",
+    rootNodes
+  );
+  initializeJsTree(rootNodes);
+
+  // fetch("data/chrome_bookmarks_small.json")
+  //   .then((response) => response.json())
+  //   .then((data) => {
+  //     console.log("SECTION 5d: Updated array:", updatedArray);
+  //     console.log("SECTION 5e: Updated dictionary:", updatedDict);
+
+  //     console.log("SECTION 5: Fetched data:", data);
+
+  //     const parsedData = parseInitialData(data.children);
+  //     console.log("SECTION 5a: Parsed data:", parsedData);
+
+  //     const cleanedData = cleanParsedData(parsedData);
+  //     console.log("SECTION 5b: Cleaned data:", cleanedData);
+
+  //     const renamedData = applyPostParsingRenaming(cleanedData);
+  //     console.log("SECTION 5c: Renamed data:", renamedData);
+
+  //     const bookmarkArray = [];
+  //     const bookmarkDict = {};
+
+  //     const { updatedArray, updatedDict } = updateArrayAndDict(
+  //       bookmarkArray,
+  //       bookmarkDict,
+  //       renamedData
+  //     );
+
+  //     const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+  //     console.log("SECTION 5f: Path to test node:", pathToTestNode);
+
+  //     let rootNodes = updatedArray.map((node) => {
+  //       if (node.id === "1") {
+  //         return { ...node, state: { opened: BookmarksBarOpen } };
+  //       } else if (node.id === "2") {
+  //         return { ...node, state: { opened: OtherBookmarksOpen } };
+  //       } else if (node.id === "3") {
+  //         return { ...node, state: { opened: MobileBookmarksOpen } };
+  //       }
+  //       return node;
+  //     });
+
+  //     if (RenamingTestingFolderOpen && pathToTestNode) {
+  //       rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+  //     }
+
+  //     console.log(
+  //       "SECTION 5g: Root nodes before jsTree initialization:",
+  //       rootNodes
+  //     );
+  //     initializeJsTree(rootNodes);
+  //   })
+  //   .catch((error) => console.error("Error loading JSON data:", error));
 });
