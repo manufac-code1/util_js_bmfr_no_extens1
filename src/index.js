@@ -5,11 +5,22 @@ import "./index.css";
 const BookmarksBarOpen = false;
 const OtherBookmarksOpen = false;
 const MobileBookmarksOpen = false;
-const RenamingTestingFolderOpen = true;
+const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
 // 2. PARSE INITIAL DATA FUNCTION
 // Parsing Functions
+function parseInitialData(data) {
+  return data.map((node) => {
+    const children = node.children ? parseInitialData(node.children) : [];
+    return {
+      id: node.id,
+      title: node.text || null,
+      url: node.data ? node.data.url : undefined,
+      children: children,
+    };
+  });
+}
 
 function cleanParsedData(data) {
   return data.map((node) => {
@@ -17,7 +28,7 @@ function cleanParsedData(data) {
     if (node.title) {
       title = node.title;
     } else if (node.url === "chrome://bookmarks/") {
-      title = "⭐️ Chrome Bookmarks";
+      title = "⭐️ [chrome://bookmarks/] (do not mod)]";
     } else {
       title = node.url ? "Unnamed Bookmark" : "Unnamed Folder";
     }
@@ -27,18 +38,6 @@ function cleanParsedData(data) {
       title: title,
       state: node.state || { opened: false },
       children: node.children ? cleanParsedData(node.children) : [],
-    };
-  });
-}
-
-function parseInitialData(data) {
-  return data.map((node) => {
-    const children = node.children ? parseInitialData(node.children) : [];
-    return {
-      id: node.id,
-      title: node.text || null,
-      url: node.data ? node.data.url : undefined,
-      children: children,
     };
   });
 }
@@ -64,7 +63,11 @@ function initializeJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
   $("#bookmarkTree").jstree({
     core: {
-      data: bookmarkData.map((node) => formatJsTreeNode(node)),
+      data: bookmarkData.map((node) => ({
+        id: node.id,
+        text: node.text, // Use node.text instead of node.title
+        children: node.children,
+      })),
       check_callback: true,
       themes: {
         name: "default-dark",
@@ -105,11 +108,10 @@ function findPathToNode(nodes, targetId, path = []) {
 }
 
 function formatJsTreeNode(node) {
-  // console.log("SECTION 4e: Formatting node:", node);
   const defaultState = { opened: false, selected: false };
   const formattedNode = {
     id: node.id,
-    text: node.title,
+    text: node.title || "Untitled", // Use a default value if node.title is not defined
     children: node.children
       .filter((child) => typeof child === "object" && child !== null)
       .map((child) => formatJsTreeNode(child)),
@@ -117,7 +119,6 @@ function formatJsTreeNode(node) {
     a_attr: node.url ? { href: node.url } : undefined,
     type: node.url ? "file" : "default",
   };
-  // console.log("SECTION 4f: Formatted node:", formattedNode);
   return formattedNode;
 }
 
@@ -197,138 +198,55 @@ function setNodeState(nodes, nodeId, newState) {
 // 5. DOMCONTENTLOADED EVENT LISTENER
 // DOM Content Loaded Event
 document.addEventListener("DOMContentLoaded", function () {
-  const data = {
-    id: "0",
-    text: "",
-    data: {},
-    children: [
-      {
-        id: "1",
-        text: "Bookmarks Bar",
-        data: {},
-        children: [
-          {
-            id: "12055",
-            text: "",
-            data: {
-              url: "chrome://bookmarks/",
-            },
-            children: [],
-          },
-          {
-            id: "33630",
-            text: "example_parent1_w_only_1_child",
-            data: {},
-            children: [
-              {
-                id: "33631",
-                text: "example_parent2_w_only_1_child",
-                data: {},
-                children: [],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
+  fetch("data/chrome_bookmarks_all.json")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("SECTION 5: Fetched data:", data);
 
-  console.log("SECTION 5: Hardcoded data:", data);
+      const parsedData = parseInitialData(data.children);
+      console.log("SECTION 5a: Parsed data:", parsedData);
 
-  const parsedData = parseInitialData(data.children);
-  console.log("SECTION 5a: Parsed data:", parsedData);
+      const cleanedData = cleanParsedData(parsedData);
+      console.log("SECTION 5b: Cleaned data:", cleanedData);
 
-  const cleanedData = cleanParsedData(parsedData);
-  console.log("SECTION 5b: Cleaned data:", cleanedData);
+      const renamedData = applyPostParsingRenaming(cleanedData);
+      console.log("SECTION 5c: Renamed data:", renamedData);
 
-  const renamedData = applyPostParsingRenaming(cleanedData);
-  console.log("SECTION 5c: Renamed data:", renamedData);
+      const bookmarkArray = [];
+      const bookmarkDict = {};
 
-  const bookmarkArray = [];
-  const bookmarkDict = {};
+      const { updatedArray, updatedDict } = updateArrayAndDict(
+        bookmarkArray,
+        bookmarkDict,
+        renamedData
+      );
 
-  const { updatedArray, updatedDict } = updateArrayAndDict(
-    bookmarkArray,
-    bookmarkDict,
-    renamedData
-  );
+      console.log("SECTION 5d: Updated array:", updatedArray);
+      console.log("SECTION 5e: Updated dictionary:", updatedDict);
 
-  console.log("SECTION 5d: Updated array:", updatedArray);
-  console.log("SECTION 5e: Updated dictionary:", updatedDict);
+      const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+      console.log("SECTION 5f: Path to test node:", pathToTestNode);
 
-  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-  console.log("SECTION 5f: Path to test node:", pathToTestNode);
+      let rootNodes = updatedArray.map((node) => {
+        if (node.id === "1") {
+          return { ...node, state: { opened: BookmarksBarOpen } };
+        } else if (node.id === "2") {
+          return { ...node, state: { opened: OtherBookmarksOpen } };
+        } else if (node.id === "3") {
+          return { ...node, state: { opened: MobileBookmarksOpen } };
+        }
+        return node;
+      });
 
-  let rootNodes = updatedArray.map((node) => {
-    if (node.id === "1") {
-      return { ...node, state: { opened: BookmarksBarOpen } };
-    } else if (node.id === "2") {
-      return { ...node, state: { opened: OtherBookmarksOpen } };
-    } else if (node.id === "3") {
-      return { ...node, state: { opened: MobileBookmarksOpen } };
-    }
-    return node;
-  });
+      if (RenamingTestingFolderOpen && pathToTestNode) {
+        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+      }
 
-  if (RenamingTestingFolderOpen && pathToTestNode) {
-    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-  }
-
-  console.log(
-    "SECTION 5g: Root nodes before jsTree initialization:",
-    rootNodes
-  );
-  initializeJsTree(rootNodes);
-
-  // fetch("data/chrome_bookmarks_small.json")
-  //   .then((response) => response.json())
-  //   .then((data) => {
-  //     console.log("SECTION 5d: Updated array:", updatedArray);
-  //     console.log("SECTION 5e: Updated dictionary:", updatedDict);
-
-  //     console.log("SECTION 5: Fetched data:", data);
-
-  //     const parsedData = parseInitialData(data.children);
-  //     console.log("SECTION 5a: Parsed data:", parsedData);
-
-  //     const cleanedData = cleanParsedData(parsedData);
-  //     console.log("SECTION 5b: Cleaned data:", cleanedData);
-
-  //     const renamedData = applyPostParsingRenaming(cleanedData);
-  //     console.log("SECTION 5c: Renamed data:", renamedData);
-
-  //     const bookmarkArray = [];
-  //     const bookmarkDict = {};
-
-  //     const { updatedArray, updatedDict } = updateArrayAndDict(
-  //       bookmarkArray,
-  //       bookmarkDict,
-  //       renamedData
-  //     );
-
-  //     const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-  //     console.log("SECTION 5f: Path to test node:", pathToTestNode);
-
-  //     let rootNodes = updatedArray.map((node) => {
-  //       if (node.id === "1") {
-  //         return { ...node, state: { opened: BookmarksBarOpen } };
-  //       } else if (node.id === "2") {
-  //         return { ...node, state: { opened: OtherBookmarksOpen } };
-  //       } else if (node.id === "3") {
-  //         return { ...node, state: { opened: MobileBookmarksOpen } };
-  //       }
-  //       return node;
-  //     });
-
-  //     if (RenamingTestingFolderOpen && pathToTestNode) {
-  //       rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-  //     }
-
-  //     console.log(
-  //       "SECTION 5g: Root nodes before jsTree initialization:",
-  //       rootNodes
-  //     );
-  //     initializeJsTree(rootNodes);
-  //   })
-  //   .catch((error) => console.error("Error loading JSON data:", error));
+      console.log(
+        "SECTION 5g: Root nodes before jsTree initialization:",
+        rootNodes
+      );
+      initializeJsTree(rootNodes);
+    })
+    .catch((error) => console.error("Error loading JSON data:", error));
 });
