@@ -10,6 +10,27 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 
 // 2. PARSE INITIAL DATA FUNCTION
 // Parsing Functions
+
+function cleanParsedData(data) {
+  return data.map((node) => {
+    let title;
+    if (node.title) {
+      title = node.title;
+    } else if (node.url === "chrome://bookmarks/") {
+      title = "⭐️ Chrome Bookmarks";
+    } else {
+      title = node.url ? "Unnamed Bookmark" : "Unnamed Folder";
+    }
+
+    return {
+      ...node,
+      title: title,
+      state: node.state || { opened: false },
+      children: node.children ? cleanParsedData(node.children) : [],
+    };
+  });
+}
+
 function parseInitialData(data) {
   return data.map((node) => {
     const children = node.children ? parseInitialData(node.children) : [];
@@ -35,26 +56,6 @@ function applyPostParsingRenaming(sst) {
     }
   });
   return sst;
-}
-
-function cleanParsedData(data) {
-  return data.map((node) => {
-    let title;
-    if (node.title) {
-      title = node.title;
-    } else if (node.url === "chrome://bookmarks/") {
-      title = "⭐️ Chrome Bookmarks";
-    } else {
-      title = node.url ? "Unnamed Bookmark" : "Unnamed Folder";
-    }
-
-    return {
-      ...node,
-      title: title,
-      state: node.state || { opened: false },
-      children: node.children ? cleanParsedData(node.children) : [],
-    };
-  });
 }
 
 // 3. APPLY POST-PARSING RENAMING FUNCTION
@@ -104,16 +105,19 @@ function findPathToNode(nodes, targetId, path = []) {
 }
 
 function formatJsTreeNode(node) {
-  console.log("SECTION 4e: Formatting node:", node);
+  // console.log("SECTION 4e: Formatting node:", node);
+  const defaultState = { opened: false, selected: false };
   const formattedNode = {
     id: node.id,
     text: node.title,
-    children: node.children.map((child) => formatJsTreeNode(child)),
-    state: node.state,
-    a_attr: node.url ? { href: node.url } : {},
+    children: node.children
+      .filter((child) => typeof child === "object" && child !== null)
+      .map((child) => formatJsTreeNode(child)),
+    state: node.state || defaultState,
+    a_attr: node.url ? { href: node.url } : undefined,
     type: node.url ? "file" : "default",
   };
-  console.log("SECTION 4f: Formatted node:", formattedNode);
+  // console.log("SECTION 4f: Formatted node:", formattedNode);
   return formattedNode;
 }
 
@@ -192,17 +196,22 @@ function setNodeState(nodes, nodeId, newState) {
 
 // 5. DOMCONTENTLOADED EVENT LISTENER
 // DOM Content Loaded Event
+// 5. DOMCONTENTLOADED EVENT LISTENER
+// DOM Content Loaded Event
 document.addEventListener("DOMContentLoaded", function () {
   fetch("data/chrome_bookmarks_small.json")
     .then((response) => response.json())
     .then((data) => {
-      // console.log("SECTION 5: Fetched data:", data);
+      console.log("SECTION 5: Fetched data:", data);
 
       const parsedData = parseInitialData(data.children);
-      // console.log("SECTION 5a: Parsed data:", parsedData);
+      console.log("SECTION 5a: Parsed data:", parsedData);
 
       const cleanedData = cleanParsedData(parsedData);
-      // console.log("SECTION 5b: Cleaned data:", cleanedData);
+      console.log("SECTION 5b: Cleaned data:", cleanedData);
+
+      const renamedData = applyPostParsingRenaming(cleanedData);
+      console.log("SECTION 5c: Renamed data:", renamedData);
 
       const bookmarkArray = [];
       const bookmarkDict = {};
@@ -210,14 +219,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const { updatedArray, updatedDict } = updateArrayAndDict(
         bookmarkArray,
         bookmarkDict,
-        cleanedData
+        renamedData
       );
 
-      // console.log("SECTION 5c: Updated array:", updatedArray);
-      // console.log("SECTION 5d: Updated dictionary:", updatedDict);
+      console.log("SECTION 5d: Updated array:", updatedArray);
+      console.log("SECTION 5e: Updated dictionary:", updatedDict);
 
       const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-      // console.log("SECTION 5e: Path to test node:", pathToTestNode);
+      console.log("SECTION 5f: Path to test node:", pathToTestNode);
 
       let rootNodes = updatedArray.map((node) => {
         if (node.id === "1") {
@@ -235,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       console.log(
-        "SECTION 5f: Root nodes before jsTree initialization:",
+        "SECTION 5g: Root nodes before jsTree initialization:",
         rootNodes
       );
       initializeJsTree(rootNodes);
