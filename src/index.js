@@ -65,13 +65,20 @@ function applyPostParsingRenaming(sst) {
 function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
 
+  function addEmojiToNode(node) {
+    return {
+      ...node,
+      text: addEmojiToTitle(node.text),
+      children: node.children ? node.children.map(addEmojiToNode) : [],
+    };
+  }
+
+  const updatedBookmarkData = bookmarkData.map(addEmojiToNode);
+  console.log("Updated Bookmark Data:", updatedBookmarkData);
+
   $("#bookmarkTree").jstree({
     core: {
-      data: bookmarkData.map((node) => ({
-        id: node.id,
-        text: addEmojiToTitle(node.text), // Modify the title here
-        children: node.children,
-      })),
+      data: updatedBookmarkData,
       check_callback: true,
       themes: {
         name: "default-dark",
