@@ -3,7 +3,7 @@ export default function parseInitialData(data) {
   const parsedData = data.map((item) => {
     const parsedItem = {
       id: item.id,
-      title: item.text || "Untitled",
+      title: item.title || "Untitled",
       children: item.children || [],
     };
     console.log("MOD 1b: parseInitialData - Parsed item:", parsedItem);
