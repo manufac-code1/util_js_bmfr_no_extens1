@@ -65,39 +65,32 @@ function applyPostParsingRenaming(sst) {
 function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
 
-  function addEmojiToNode(node) {
-    return {
-      ...node,
-      text: addEmojiToTitle(node.text),
-      children: node.children ? node.children.map(addEmojiToNode) : [],
-    };
-  }
+  const updatedBookmarkData = bookmarkData.map(addEmojiToTitle); // Apply the function to the entire tree
 
-  const updatedBookmarkData = bookmarkData.map(addEmojiToNode);
-  console.log("Updated Bookmark Data:", updatedBookmarkData);
-
-  $("#bookmarkTree").jstree({
-    core: {
-      data: updatedBookmarkData,
-      check_callback: true,
-      themes: {
-        name: "default-dark",
-        dots: true,
-        icons: true,
-        url: "libs/themes/default-dark/style.css",
+  $("#bookmarkTree")
+    .jstree({
+      core: {
+        data: updatedBookmarkData, // Use the updated bookmark data
+        check_callback: true,
+        themes: {
+          name: "default-dark",
+          dots: true,
+          icons: true,
+          url: "libs/themes/default-dark/style.css",
+        },
       },
-    },
-    types: {
-      default: {
-        icon: "jstree-folder",
+      types: {
+        default: {
+          icon: "jstree-folder",
+        },
+        file: {
+          icon: "jstree-file",
+        },
       },
-      file: {
-        icon: "jstree-file",
-      },
-    },
-    state: { key: "bookmarkTreeState" },
-    plugins: ["state", "types", "search", "lazy"],
-  });
+      state: { key: "bookmarkTreeState" },
+      plugins: ["state", "types", "search", "lazy"],
+    })
+    .on("select_node.jstree", handleJsTreeNodeSelection);
 }
 
 // 4. INITIALIZE JSTREE
@@ -210,6 +203,15 @@ function setNodeState(nodes, nodeId, newState) {
       setNodeState(node.children, nodeId, newState);
     }
   }
+}
+
+// Function to handle jsTree node selection
+function handleJsTreeNodeSelection(e, data) {
+  const selectedNodeId = data.node.id;
+  const selectedNodeText = data.node.text;
+  console.log(
+    `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
+  );
 }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
