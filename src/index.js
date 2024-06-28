@@ -1,5 +1,5 @@
 // 1. CONFIGURATION VARIABLES
-import { parseInitialData } from "./dataProc";
+import parseInitialData from "./dataProc";
 
 import "./index.css";
 
@@ -204,8 +204,6 @@ function setNodeState(nodes, nodeId, newState) {
     }
   }
 }
-
-import { parseInitialData } from "./dataProc";
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 // Handling the DOMContentLoaded event to initialize the jsTree

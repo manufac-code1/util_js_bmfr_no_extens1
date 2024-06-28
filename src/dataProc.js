@@ -1,8 +1,5 @@
-// dataProc.js
-export function parseInitialData(data) {
-  // Your parsing logic here
+export default function parseInitialData(data) {
   const parsedData = data.map((item) => {
-    // Example parsing logic
     return {
       id: item.id,
       title: item.title || "Untitled",
