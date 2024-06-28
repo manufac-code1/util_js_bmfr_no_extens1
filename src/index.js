@@ -69,7 +69,7 @@ function setupAndPopulateJsTree(bookmarkData) {
     core: {
       data: bookmarkData.map((node) => ({
         id: node.id,
-        // text: addEmojiToTitle(node.text), // Modify the title here
+        text: addEmojiToTitle(node.text), // Modify the title here
         children: node.children,
       })),
       check_callback: true,

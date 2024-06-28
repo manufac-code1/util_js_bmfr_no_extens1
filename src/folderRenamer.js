@@ -1,14 +1,6 @@
-// src/folderRenamer.js
-// External function to add emoji to the title
-function addEmojiToTitle(nodes) {
+function addEmojiToTitle(title) {
   const emoji = "🟢";
-  const updatedNodes = nodes.map((node) => ({
-    ...node,
-    text: `${node.text} ${emoji}`,
-    children: node.children ? addEmojiToTitle(node.children) : [],
-  }));
-  console.log("Updated nodes with emoji:", updatedNodes);
-  return updatedNodes;
+  return `${title} ${emoji}`;
 }
 
 export { addEmojiToTitle };
