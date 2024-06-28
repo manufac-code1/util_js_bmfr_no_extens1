@@ -1,0 +1,24 @@
+# Ignore Mac system files
+.DS_Store
+
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore build output
+build/
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore compiled output
+dist/
+
+# Ignore personal bookmarks JSON file to protect sensitive information
+src/data/chrome_bookmarks_all.json
+src/data/chrome_bookmarks_small.json
+
+# Ignore misc
+src/data/jsTree_sample.js

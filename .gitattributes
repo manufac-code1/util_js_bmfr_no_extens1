@@ -2,22 +2,22 @@
 * text=auto
 
 # Explicitly declare text files you want to always be normalized and converted to native line endings on checkout.
-*.css    text
-*.less   text
-*.md     text
-*.txt    text
-*.js     text
-*.json   text
-*.html   text
-*.jsx    text
-*.ts     text
-*.tsx    text
-*.sh     text
-*.yml    text
-*.yaml   text
-*.min.js text
-*.map    text
+*.css    text eol=lf
+*.less   text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.html   text eol=lf
+*.jsx    text eol=lf
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.sh     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.min.js text eol=lf
+*.map    text eol=lf
 
 # Webpack related files
-*.config.js text
-*.bundle.js text
+*.config.js text eol=lf
+*.bundle.js text eol=lf
