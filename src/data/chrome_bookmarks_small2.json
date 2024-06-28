@@ -1,0 +1,86 @@
+{
+  "id": "0",
+  "text": "",
+  "data": {},
+  "children": [
+    {
+      "id": "1",
+      "text": "Bookmarks Bar",
+      "data": {},
+      "children": [
+        {
+          "id": "12055",
+          "text": "",
+          "data": {
+            "url": "chrome://bookmarks/"
+          },
+          "children": []
+        },
+        {
+          "id": "33630",
+          "text": "example_parent1_w_only_1_child",
+          "data": {},
+          "children": [
+            {
+              "id": "33631",
+              "text": "example_parent2_w_only_1_child",
+              "data": {},
+              "children": [
+                {
+                  "id": "33645",
+                  "text": "example_parent2_containing_mult_folders",
+                  "data": {},
+                  "children": [
+                    {
+                      "id": "33633",
+                      "text": "New folder",
+                      "data": {},
+                      "children": [
+                        {
+                          "id": "33634",
+                          "text": "Polar is the bear for the ice - Wikipedia",
+                          "data": {
+                            "url": "https://en.wikipedia.org/wiki/Polar_bear"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "33635",
+                          "text": "Bee is the buzzy insect that is flying there - Wikipedia the site",
+                          "data": {
+                            "url": "https://en.wikipedia.org/wiki/Bee"
+                          },
+                          "children": []
+                        },
+                        {
+                          "id": "33636",
+                          "text": "Candle is an item - Wikipedia website page",
+                          "data": {
+                            "url": "https://en.wikipedia.org/wiki/Candle"
+                          },
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "text": "Other Bookmarks",
+      "data": {},
+      "children": []
+    },
+    {
+      "id": "3",
+      "text": "Mobile Bookmarks",
+      "data": {},
+      "children": []
+    }
+  ]
+}

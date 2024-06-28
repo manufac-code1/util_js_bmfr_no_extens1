@@ -25,8 +25,10 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 // }
 
 // Cleaning the parsed data to ensure it has the correct properties for the AODM
+// Cleaning the parsed data to ensure it has the correct properties for the AODM
 function cleanParsedData(data) {
-  return data.map((node) => {
+  console.log("INDEX 2a: cleanParsedData - Input data:", data);
+  const cleanedData = data.map((node) => {
     let title;
 
     // Ensure all nodes have a valid title
@@ -35,18 +37,24 @@ function cleanParsedData(data) {
     } else {
       title = node.url ? "Unnamed Bookmark" : "New Folder";
     }
-
-    return {
+    const cleanedNode = {
       ...node,
       title: title,
-      state: node.state || { opened: false },
+      state: node.state || {
+        opened: false,
+      },
       children: node.children ? cleanParsedData(node.children) : [],
     };
+    console.log("INDEX 2b: cleanParsedData - Cleaned node:", cleanedNode);
+    return cleanedNode;
   });
+  console.log("INDEX 2c: cleanParsedData - Output data:", cleanedData);
+  return cleanedData;
 }
 
 // Applying post-parsing renaming to nodes for consistency in the AODM
 function applyPostParsingRenaming(sst) {
+  console.log("INDEX 3a: applyPostParsingRenaming - Input data:", sst);
   sst.forEach((node) => {
     // Standardize the name for the `chrome://bookmarks/` bookmark
     if (node.url === "chrome://bookmarks/") {
@@ -57,7 +65,9 @@ function applyPostParsingRenaming(sst) {
     if (node.children) {
       applyPostParsingRenaming(node.children);
     }
+    console.log("INDEX 3b: applyPostParsingRenaming - Renamed node:", node);
   });
+  console.log("INDEX 3c: applyPostParsingRenaming - Output data:", sst);
   return sst;
 }
 
@@ -208,7 +218,7 @@ function setNodeState(nodes, nodeId, newState) {
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 // Handling the DOMContentLoaded event to initialize the jsTree
 document.addEventListener("DOMContentLoaded", function () {
-  fetch("data/chrome_bookmarks_all.json")
+  fetch("data/chrome_bookmarks_small.json")
     .then((response) => response.json())
     .then((data) => {
       console.log("SECTION 5: Fetched data:", data);
