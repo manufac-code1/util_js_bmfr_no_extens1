@@ -1,4 +1,6 @@
 // 1. CONFIGURATION VARIABLES
+import { parseInitialData } from "./dataProc";
+
 import "./index.css";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
@@ -10,17 +12,17 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 
 // 2. PARSE INITIAL DATA FUNCTION
 // Parsing the initial data structure into a usable format, preparing it for integration into the AODM
-function parseInitialData(data) {
-  return data.map((node) => {
-    const children = node.children ? parseInitialData(node.children) : [];
-    return {
-      id: node.id,
-      title: node.text || null,
-      url: node.data ? node.data.url : undefined,
-      children: children,
-    };
-  });
-}
+// function parseInitialData(data) {
+//   return data.map((node) => {
+//     const children = node.children ? parseInitialData(node.children) : [];
+//     return {
+//       id: node.id,
+//       title: node.text || null,
+//       url: node.data ? node.data.url : undefined,
+//       children: children,
+//     };
+//   });
+// }
 
 // Cleaning the parsed data to ensure it has the correct properties for the AODM
 function cleanParsedData(data) {
@@ -202,6 +204,8 @@ function setNodeState(nodes, nodeId, newState) {
     }
   }
 }
+
+import { parseInitialData } from "./dataProc";
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 // Handling the DOMContentLoaded event to initialize the jsTree
