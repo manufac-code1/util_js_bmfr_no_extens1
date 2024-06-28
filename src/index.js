@@ -1,5 +1,6 @@
 // 1. CONFIGURATION VARIABLES
 import "./index.css";
+import { addEmojiToTitle } from "./folderRenamer";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
@@ -63,6 +64,9 @@ function applyPostParsingRenaming(sst) {
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
 function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
+
+  const updatedBookmarkData = addEmojiToTitle(bookmarkData);
+
   $("#bookmarkTree").jstree({
     core: {
       data: bookmarkData.map((node) => ({
