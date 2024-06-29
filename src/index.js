@@ -73,29 +73,27 @@ function setupAndPopulateJsTree(bookmarkData) {
     .jstree({
       core: {
         data: bookmarkData.map((node) => {
-          console.log(
-            "🟧Node text:",
-            node.text,
-            "Is Selected:",
-            node.id === selectedNodeId
-          );
-          const updatedText = addEmojiToTitle(
-            node.text,
-            node.id === selectedNodeId
-          );
-          console.log("🟨Updated text:", updatedText);
+          const jsTreeInstance = $("#bookmarkTree").jstree(true);
+          const isSelected = jsTreeInstance.get_node(node.id).state.selected;
+          console.log("Node text:", node.text, "Is Selected:", isSelected);
+          const updatedText = addEmojiToTitle(node.text, isSelected);
+          console.log("Updated text:", updatedText);
           return {
             id: node.id,
             text: updatedText,
             children: node.children
               ? node.children.map((child) => {
-                  console.log("Processing child node:", child);
+                  const childIsSelected = jsTreeInstance.get_node(child.id)
+                    .state.selected;
+                  console.log(
+                    "Child text:",
+                    child.text,
+                    "Is Selected:",
+                    childIsSelected
+                  );
                   return {
                     id: child.id,
-                    text: addEmojiToTitle(
-                      child.text,
-                      child.state && child.state.selected
-                    ),
+                    text: addEmojiToTitle(child.text, childIsSelected),
                     children: child.children || [],
                   };
                 })
