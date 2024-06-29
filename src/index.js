@@ -69,57 +69,44 @@ function applyPostParsingRenaming(sst) {
 function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
 
-  $("#bookmarkTree")
-    .jstree({
-      core: {
-        data: bookmarkData.map((node) => {
-          const jsTreeInstance = $("#bookmarkTree").jstree(true);
-          const isSelected = jsTreeInstance.get_node(node.id).state.selected;
-          console.log("Node text:", node.text, "Is Selected:", isSelected);
-          const updatedText = addEmojiToTitle(node.text, isSelected);
-          console.log("Updated text:", updatedText);
-          return {
-            id: node.id,
-            text: updatedText,
-            children: node.children
-              ? node.children.map((child) => {
-                  const childIsSelected = jsTreeInstance.get_node(child.id)
-                    .state.selected;
-                  console.log(
-                    "Child text:",
-                    child.text,
-                    "Is Selected:",
-                    childIsSelected
-                  );
-                  return {
-                    id: child.id,
-                    text: addEmojiToTitle(child.text, childIsSelected),
-                    children: child.children || [],
-                  };
-                })
-              : [],
-          };
-        }),
-        check_callback: true,
-        themes: {
-          name: "default-dark",
-          dots: true,
-          icons: true,
-          url: "libs/themes/default-dark/style.css",
-        },
+  $("#bookmarkTree").jstree({
+    core: {
+      data: bookmarkData.map((node) => {
+        return {
+          id: node.id,
+          text: node.text,
+          children: node.children || [],
+        };
+      }),
+      check_callback: true,
+      themes: {
+        name: "default-dark",
+        dots: true,
+        icons: true,
+        url: "libs/themes/default-dark/style.css",
       },
-      types: {
-        default: {
-          icon: "jstree-folder",
-        },
-        file: {
-          icon: "jstree-file",
-        },
+    },
+    types: {
+      default: {
+        icon: "jstree-folder",
       },
-      state: { key: "bookmarkTreeState" },
-      plugins: ["state", "types", "search", "lazy"],
-    })
-    .on("select_node.jstree", handleJsTreeNodeSelection);
+      file: {
+        icon: "jstree-file",
+      },
+    },
+    state: { key: "bookmarkTreeState" },
+    plugins: ["state", "types", "search", "lazy"],
+  });
+
+  const jsTreeInstance = $("#bookmarkTree").jstree(true);
+
+  bookmarkData.forEach((node) => {
+    const isSelected = jsTreeInstance.get_node(node.id).state.selected;
+    console.log("Node text:", node.text, "Is Selected:", isSelected);
+    const updatedText = addEmojiToTitle(node.text, isSelected);
+    console.log("Updated text:", updatedText);
+    // Process child nodes if necessary
+  });
 }
 
 // 4. INITIALIZE JSTREE
