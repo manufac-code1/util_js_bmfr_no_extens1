@@ -1,6 +1,6 @@
 // 1. CONFIGURATION VARIABLES
 import "./index.css";
-import { addEmojiToTitle } from "./folderRenamer";
+import addEmojiToTitle from "./folderRenamer";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
@@ -69,10 +69,11 @@ function setupAndPopulateJsTree(bookmarkData) {
     .jstree({
       core: {
         data: bookmarkData.map((node) => {
+          const isSelected = node.id === "1"; // Bookmarks Bar ID
           console.log("Processing node:", node);
           return {
             id: node.id,
-            text: addEmojiToTitle(node.text, node.state && node.state.selected),
+            text: addEmojiToTitle(node.text, isSelected),
             children: node.children
               ? node.children.map((child) => {
                   console.log("Processing child node:", child);
@@ -223,12 +224,34 @@ function setNodeState(nodes, nodeId, newState) {
 }
 
 // Function to handle jsTree node selection
+// function handleJsTreeNodeSelection(e, data) {
+//   const selectedNodeId = data.node.id;
+//   const selectedNodeText = data.node.text;
+//   console.log(
+//     `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
+//   );
+// }
+
+// Function to handle jsTree node selection
 function handleJsTreeNodeSelection(e, data) {
   const selectedNodeId = data.node.id;
   const selectedNodeText = data.node.text;
   console.log(
     `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
   );
+
+  // Update the selection state
+  bookmarkData.forEach((node) => {
+    node.state.selected = node.id === selectedNodeId;
+    if (node.children) {
+      node.children.forEach((child) => {
+        child.state.selected = child.id === selectedNodeId;
+      });
+    }
+  });
+
+  // Re-render jsTree with updated selection states
+  setupAndPopulateJsTree(bookmarkData);
 }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
