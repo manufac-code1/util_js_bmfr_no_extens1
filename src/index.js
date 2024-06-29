@@ -65,21 +65,27 @@ function applyPostParsingRenaming(sst) {
 function setupAndPopulateJsTree(bookmarkData) {
   console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
 
-  let logCounter = 0;
-  const logLimit = 10;
-
   $("#bookmarkTree")
     .jstree({
       core: {
         data: bookmarkData.map((node) => {
-          if (logCounter < logLimit) {
-            console.log("XXXX Node data:", node);
-            logCounter++;
-          }
+          console.log("Processing node:", node);
           return {
             id: node.id,
             text: addEmojiToTitle(node.text, node.state && node.state.selected),
-            children: node.children || [],
+            children: node.children
+              ? node.children.map((child) => {
+                  console.log("Processing child node:", child);
+                  return {
+                    id: child.id,
+                    text: addEmojiToTitle(
+                      child.text,
+                      child.state && child.state.selected
+                    ),
+                    children: child.children || [],
+                  };
+                })
+              : [],
           };
         }),
         check_callback: true,
@@ -175,7 +181,7 @@ function updateArrayAndDict(array, dict, newBookmarkData) {
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArray(updatedArray);
 
-  console.log("SECTION 4q: ", updatedArray);
+  console.log("SECTION 4q, updatedArray: ", updatedArray);
   // console.log("SECTION 4r: ", updatedDict);
 
   return { updatedArray, updatedDict };
@@ -231,16 +237,16 @@ document.addEventListener("DOMContentLoaded", function () {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((data) => {
-      console.log("SECTION 5: Fetched data:", data);
+      // console.log("SECTION 5: Fetched data:", data);
 
       const parsedData = parseInitialData(data.children);
-      console.log("SECTION 5a: Parsed data:", parsedData);
+      // console.log("SECTION 5a: Parsed data:", parsedData);
 
       const cleanedData = cleanParsedData(parsedData);
-      console.log("SECTION 5b: Cleaned data:", cleanedData);
+      // console.log("SECTION 5b: Cleaned data:", cleanedData);
 
       const renamedData = applyPostParsingRenaming(cleanedData);
-      console.log("SECTION 5c: Renamed data:", renamedData);
+      // console.log("SECTION 5c: Renamed data:", renamedData);
 
       const bookmarkArray = [];
       const bookmarkDict = {};
@@ -251,13 +257,14 @@ document.addEventListener("DOMContentLoaded", function () {
         renamedData
       );
 
-      console.log("SECTION 5d: Updated array:", updatedArray);
-      console.log("SECTION 5e: Updated dictionary:", updatedDict);
+      console.log("SECTION 5d: updatedArray:", updatedArray);
+      // console.log("SECTION 5e: Updated dictionary:", updatedDict);
 
       const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-      console.log("SECTION 5f: Path to test node:", pathToTestNode);
+      // console.log("SECTION 5f: Path to test node:", pathToTestNode);
 
       let rootNodes = updatedArray.map((node) => {
+        // console.log("DOMContentLoaded, rootNodes: ", rootNodes);
         if (node.id === "1") {
           return { ...node, state: { opened: BookmarksBarOpen } };
         } else if (node.id === "2") {
@@ -272,10 +279,10 @@ document.addEventListener("DOMContentLoaded", function () {
         rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
       }
 
-      console.log(
-        "SECTION 5g: Root nodes before jsTree initialization:",
-        rootNodes
-      );
+      // console.log(
+      //   "SECTION 5g: Root nodes before jsTree initialization:",
+      //   rootNodes
+      // );
       setupAndPopulateJsTree(rootNodes);
     })
     .catch((error) => console.error("Error loading JSON data:", error));
