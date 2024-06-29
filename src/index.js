@@ -71,13 +71,11 @@ function setupAndPopulateJsTree(bookmarkData) {
 
   $("#bookmarkTree").jstree({
     core: {
-      data: bookmarkData.map((node) => {
-        return {
-          id: node.id,
-          text: node.text,
-          children: node.children || [],
-        };
-      }),
+      data: bookmarkData.map((node) => ({
+        id: node.id,
+        text: node.text,
+        children: node.children || [],
+      })),
       check_callback: true,
       themes: {
         name: "default-dark",
@@ -87,12 +85,8 @@ function setupAndPopulateJsTree(bookmarkData) {
       },
     },
     types: {
-      default: {
-        icon: "jstree-folder",
-      },
-      file: {
-        icon: "jstree-file",
-      },
+      default: { icon: "jstree-folder" },
+      file: { icon: "jstree-file" },
     },
     state: { key: "bookmarkTreeState" },
     plugins: ["state", "types", "search", "lazy"],
@@ -100,12 +94,26 @@ function setupAndPopulateJsTree(bookmarkData) {
 
   const jsTreeInstance = $("#bookmarkTree").jstree(true);
 
+  // Attach event handler for node selection
+  $("#bookmarkTree").on("select_node.jstree", function (e, data) {
+    const selectedNode = data.node;
+    console.log(
+      `DOMC - Node selected: ID = ${selectedNode.id}, Text = ${selectedNode.text}`
+    );
+  });
+
   bookmarkData.forEach((node) => {
-    const isSelected = jsTreeInstance.get_node(node.id).state.selected;
-    console.log("Node text:", node.text, "Is Selected:", isSelected);
-    const updatedText = addEmojiToTitle(node.text, isSelected);
-    console.log("Updated text:", updatedText);
-    // Process child nodes if necessary
+    const nodeState = jsTreeInstance.get_node(node.id);
+    if (nodeState && nodeState.state.selected) {
+      console.log(
+        "Node text:",
+        node.text,
+        "Is Selected:",
+        nodeState.state.selected
+      );
+      const updatedText = addEmojiToTitle(node.text, nodeState.state.selected);
+      console.log("Updated text:", updatedText);
+    }
   });
 }
 
@@ -231,12 +239,12 @@ function setNodeState(nodes, nodeId, newState) {
 // }
 
 // Function to handle jsTree node selection
-function handleJsTreeNodeSelection(e, data) {
-  selectedNodeId = data.node.id;
-  console.log(
-    `Node selected: ID = ${selectedNodeId}, Text = ${data.node.text}`
-  );
-}
+// function handleJsTreeNodeSelection(e, data) {
+//   selectedNodeId = data.node.id;
+//   console.log(
+//     `HANDLER: Node selected: ID = ${selectedNodeId}, Text = ${data.node.text}`
+//   );
+// }
 
 // Function to handle jsTree node selection
 // function handleJsTreeNodeSelection(e, data) {
