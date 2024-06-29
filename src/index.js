@@ -224,35 +224,33 @@ function setNodeState(nodes, nodeId, newState) {
 }
 
 // Function to handle jsTree node selection
-// function handleJsTreeNodeSelection(e, data) {
-//   const selectedNodeId = data.node.id;
-//   const selectedNodeText = data.node.text;
-//   console.log(
-//     `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
-//   );
-// }
-
-// Function to handle jsTree node selection
 function handleJsTreeNodeSelection(e, data) {
   const selectedNodeId = data.node.id;
   const selectedNodeText = data.node.text;
   console.log(
     `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
   );
-
-  // Update the selection state
-  bookmarkData.forEach((node) => {
-    node.state.selected = node.id === selectedNodeId;
-    if (node.children) {
-      node.children.forEach((child) => {
-        child.state.selected = child.id === selectedNodeId;
-      });
-    }
-  });
-
-  // Re-render jsTree with updated selection states
-  setupAndPopulateJsTree(bookmarkData);
 }
+
+// Function to handle jsTree node selection
+// function handleJsTreeNodeSelection(e, data) {
+//   const selectedNodeId = data.node.id;
+//   const selectedNodeText = data.node.text;
+//   console.log(`Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`);
+
+// Update the selection state
+//   bookmarkData.forEach((node) => {
+//     node.state.selected = (node.id === selectedNodeId);
+//     if (node.children) {
+//       node.children.forEach((child) => {
+//         child.state.selected = (child.id === selectedNodeId);
+//       });
+//     }
+//   });
+
+//   // Re-render jsTree with updated selection states
+//   setupAndPopulateJsTree(bookmarkData);
+// }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 // Handling the DOMContentLoaded event to initialize the jsTree
