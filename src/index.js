@@ -67,15 +67,11 @@ function applyPostParsingRenaming(sst) {
 // 3. RENAME NODES POST-PARSING
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
 function setupAndPopulateJsTree(bookmarkData) {
-  console.log("SECTION 3a: Initializing jsTree with data:", bookmarkData);
+  console.log("Initializing jsTree with data:", bookmarkData);
 
   $("#bookmarkTree").jstree({
     core: {
-      data: bookmarkData.map((node) => ({
-        id: node.id,
-        text: node.text,
-        children: node.children || [],
-      })),
+      data: bookmarkData,
       check_callback: true,
       themes: {
         name: "default-dark",
@@ -94,26 +90,19 @@ function setupAndPopulateJsTree(bookmarkData) {
 
   const jsTreeInstance = $("#bookmarkTree").jstree(true);
 
-  // Attach event handler for node selection
+  // Attach event handlers for node selection and deselection
   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
     const selectedNode = data.node;
-    console.log(
-      `DOMC - Node selected: ID = ${selectedNode.id}, Text = ${selectedNode.text}`
-    );
+    const updatedText = addEmojiToTitle(selectedNode.text, true);
+    jsTreeInstance.set_text(selectedNode, updatedText);
+    console.log("Node selected:", selectedNode.text);
   });
 
-  bookmarkData.forEach((node) => {
-    const nodeState = jsTreeInstance.get_node(node.id);
-    if (nodeState && nodeState.state.selected) {
-      console.log(
-        "Node text:",
-        node.text,
-        "Is Selected:",
-        nodeState.state.selected
-      );
-      const updatedText = addEmojiToTitle(node.text, nodeState.state.selected);
-      console.log("Updated text:", updatedText);
-    }
+  $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
+    const deselectedNode = data.node;
+    const updatedText = addEmojiToTitle(deselectedNode.text, false);
+    jsTreeInstance.set_text(deselectedNode, updatedText);
+    console.log("Node deselected:", deselectedNode.text);
   });
 }
 
