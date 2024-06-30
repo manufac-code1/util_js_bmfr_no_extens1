@@ -6,6 +6,8 @@ let selectedNodeId = null;
 import "./index.css";
 import addEmojiToTitle from "./folderRenamer";
 
+import fetchAndProcessJSONNEW from "./aodmCont.js";
+
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
 const OtherBookmarksOpen = false;
@@ -218,43 +220,6 @@ function setNodeState(nodes, nodeId, newState) {
   }
 }
 
-// Function to handle jsTree node selection
-// function handleJsTreeNodeSelection(e, data) {
-//   const selectedNodeId = data.node.id;
-//   const selectedNodeText = data.node.text;
-//   console.log(
-//     `Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`
-//   );
-// }
-
-// Function to handle jsTree node selection
-// function handleJsTreeNodeSelection(e, data) {
-//   selectedNodeId = data.node.id;
-//   console.log(
-//     `HANDLER: Node selected: ID = ${selectedNodeId}, Text = ${data.node.text}`
-//   );
-// }
-
-// Function to handle jsTree node selection
-// function handleJsTreeNodeSelection(e, data) {
-//   const selectedNodeId = data.node.id;
-//   const selectedNodeText = data.node.text;
-//   console.log(`Node selected: ID = ${selectedNodeId}, Text = ${selectedNodeText}`);
-
-// Update the selection state
-//   bookmarkData.forEach((node) => {
-//     node.state.selected = (node.id === selectedNodeId);
-//     if (node.children) {
-//       node.children.forEach((child) => {
-//         child.state.selected = (child.id === selectedNodeId);
-//       });
-//     }
-//   });
-
-//   // Re-render jsTree with updated selection states
-//   setupAndPopulateJsTree(bookmarkData);
-// }
-
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 // Handling the DOMContentLoaded event to initialize the jsTree
 document.addEventListener("DOMContentLoaded", function () {
@@ -310,4 +275,51 @@ document.addEventListener("DOMContentLoaded", function () {
       setupAndPopulateJsTree(rootNodes);
     })
     .catch((error) => console.error("Error loading JSON data:", error));
+});
+
+// Handling the DOMContentLoaded event to initialize the jsTree
+d; // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
+document.addEventListener("DOMContentLoaded", function () {
+  // Existing fetch and processing
+  fetch("data/chrome_bookmarks_all.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const parsedData = parseInitialData(data.children);
+      const cleanedData = cleanParsedData(parsedData);
+      const renamedData = applyPostParsingRenaming(cleanedData);
+
+      const bookmarkArray = [];
+      const bookmarkDict = {};
+
+      const { updatedArray, updatedDict } = updateArrayAndDict(
+        bookmarkArray,
+        bookmarkDict,
+        renamedData
+      );
+
+      console.log("SECTION 5d: updatedArray:", updatedArray);
+
+      const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+
+      let rootNodes = updatedArray.map((node) => {
+        if (node.id === "1") {
+          return { ...node, state: { opened: BookmarksBarOpen } };
+        } else if (node.id === "2") {
+          return { ...node, state: { opened: OtherBookmarksOpen } };
+        } else if (node.id === "3") {
+          return { ...node, state: { opened: MobileBookmarksOpen } };
+        }
+        return node;
+      });
+
+      if (RenamingTestingFolderOpen && pathToTestNode) {
+        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+      }
+
+      setupAndPopulateJsTree(rootNodes);
+    })
+    .catch((error) => console.error("Error loading JSON data:", error));
+
+  // AA: AODM MODULE TEST
+  fetchAndProcessJSONNEW(); // Calling the new fetch function
 });
