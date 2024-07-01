@@ -6,7 +6,7 @@ let selectedNodeId = null;
 import "./index.css";
 import addEmojiToTitle from "./folderRenamer";
 
-import fetchAndProcessJSONNEW from "./aodmCont.js";
+import manageAODM, { aodmDictionary } from "./manageAODM.js";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
@@ -69,7 +69,7 @@ function applyPostParsingRenaming(sst) {
 // 3. RENAME NODES POST-PARSING
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
 function setupAndPopulateJsTree(bookmarkData) {
-  console.log("Initializing jsTree with data:", bookmarkData);
+  // console.log("SECTION 3---AA Initializing jsTree with data:", bookmarkData);
 
   $("#bookmarkTree").jstree({
     core: {
@@ -142,6 +142,9 @@ function formatJsTreeNode(node) {
   return formattedNode;
 }
 
+// Export the function
+export { formatJsTreeNode };
+
 // Getting child nodes of a specific parent node, used for hierarchical data traversal within the AODM
 function getChildNodes(data, parentId) {
   const result = [];
@@ -179,8 +182,8 @@ function updateArrayAndDict(array, dict, newBookmarkData) {
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArray(updatedArray);
 
-  console.log("SECTION 4q, updatedArray: ", updatedArray);
-  // console.log("SECTION 4r: ", updatedDict);
+  // console.log("SECTION 4q, updatedArray: ", updatedArray);
+  // console.log("SECTION 4r, updatedDict: ", updatedDict);
 
   return { updatedArray, updatedDict };
 }
@@ -221,21 +224,21 @@ function setNodeState(nodes, nodeId, newState) {
 }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
-// Handling the DOMContentLoaded event to initialize the jsTree
 document.addEventListener("DOMContentLoaded", function () {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((data) => {
-      // console.log("SECTION 5: Fetched data:", data);
+      console.log("01: fetch - data:", data);
+      console.log("02: fetch - data.children:", data.children);
 
       const parsedData = parseInitialData(data.children);
-      // console.log("SECTION 5a: Parsed data:", parsedData);
+      console.log("10: parseInitialData - parsedData:", parsedData);
 
       const cleanedData = cleanParsedData(parsedData);
-      // console.log("SECTION 5b: Cleaned data:", cleanedData);
+      console.log("11: cleanParsedData - cleanedData:", cleanedData);
 
       const renamedData = applyPostParsingRenaming(cleanedData);
-      // console.log("SECTION 5c: Renamed data:", renamedData);
+      console.log("12: applyPostParsingRenaming - renamedData:", renamedData);
 
       const bookmarkArray = [];
       const bookmarkDict = {};
@@ -245,15 +248,17 @@ document.addEventListener("DOMContentLoaded", function () {
         bookmarkDict,
         renamedData
       );
-
-      console.log("SECTION 5d: updatedArray:", updatedArray);
-      // console.log("SECTION 5e: Updated dictionary:", updatedDict);
+      console.log(
+        "13: updateArrayAndDict - updatedArray and updatedDict:",
+        updatedArray,
+        updatedDict
+      );
 
       const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-      // console.log("SECTION 5f: Path to test node:", pathToTestNode);
+      console.log("14: findPathToNode - pathToTestNode:", pathToTestNode);
 
       let rootNodes = updatedArray.map((node) => {
-        // console.log("DOMContentLoaded, rootNodes: ", rootNodes);
+        console.log("15: map - rootNodes mapping:", rootNodes);
         if (node.id === "1") {
           return { ...node, state: { opened: BookmarksBarOpen } };
         } else if (node.id === "2") {
@@ -267,59 +272,18 @@ document.addEventListener("DOMContentLoaded", function () {
       if (RenamingTestingFolderOpen && pathToTestNode) {
         rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
       }
-
-      // console.log(
-      //   "SECTION 5g: Root nodes before jsTree initialization:",
-      //   rootNodes
-      // );
+      console.log("16: before jsTree - rootNodes:", rootNodes);
       setupAndPopulateJsTree(rootNodes);
-    })
-    .catch((error) => console.error("Error loading JSON data:", error));
-});
 
-// Handling the DOMContentLoaded event to initialize the jsTree
-d; // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
-document.addEventListener("DOMContentLoaded", function () {
-  // Existing fetch and processing
-  fetch("data/chrome_bookmarks_all.json")
-    .then((response) => response.json())
-    .then((data) => {
-      const parsedData = parseInitialData(data.children);
-      const cleanedData = cleanParsedData(parsedData);
-      const renamedData = applyPostParsingRenaming(cleanedData);
-
-      const bookmarkArray = [];
-      const bookmarkDict = {};
-
-      const { updatedArray, updatedDict } = updateArrayAndDict(
-        bookmarkArray,
-        bookmarkDict,
-        renamedData
-      );
-
-      console.log("SECTION 5d: updatedArray:", updatedArray);
-
-      const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-
-      let rootNodes = updatedArray.map((node) => {
-        if (node.id === "1") {
-          return { ...node, state: { opened: BookmarksBarOpen } };
-        } else if (node.id === "2") {
-          return { ...node, state: { opened: OtherBookmarksOpen } };
-        } else if (node.id === "3") {
-          return { ...node, state: { opened: MobileBookmarksOpen } };
-        }
-        return node;
-      });
-
-      if (RenamingTestingFolderOpen && pathToTestNode) {
-        rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-      }
-
-      setupAndPopulateJsTree(rootNodes);
+      // Comparing dictionaries
+      console.log("17: Comparing dictionaries:");
+      console.log("Original Dictionary:", bookmarkDict);
+      console.log("New AODM Dictionary:", aodmDictionary);
+      const dictionariesMatch =
+        JSON.stringify(bookmarkDict) === JSON.stringify(aodmDictionary);
+      console.log("Dictionaries match:", dictionariesMatch);
     })
     .catch((error) => console.error("Error loading JSON data:", error));
 
-  // AA: AODM MODULE TEST
-  fetchAndProcessJSONNEW(); // Calling the new fetch function
+  manageAODM(); // Calling the new AODM master function in manageAODM.js
 });
