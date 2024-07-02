@@ -6,7 +6,7 @@ let selectedNodeId = null;
 import "./index.css";
 import addEmojiToTitle from "./folderRenamer";
 
-import manageAODM, { aodmDictionary, updatedArray } from "./manageAODM.js";
+import { manageAODM, aodmDictionary, updatedArray } from "./manageAODM.js";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;

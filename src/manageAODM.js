@@ -2,10 +2,6 @@ let updatedArray = [];
 let aodmDictionary = {};
 import { formatJsTreeNode } from "./index.js";
 
-export default function manageAODM() {
-  loadAODM();
-}
-
 function loadAODM() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
@@ -67,7 +63,6 @@ function initializeAODM(dataNEW) {
   // Additional processing can be added here
 }
 
-export { manageAODM, aodmDictionary, updatedArray }; // Exporting both the master function and the dictionary
 // 2. PARSE INITIAL DATA FUNCTION
 function parseInitialDataNEW(data) {
   return data.map((node) => {
@@ -141,3 +136,11 @@ function updateArrayAndDictNEW(array, dict, newBookmarkData) {
 
   return { updatedArray, updatedDict };
 }
+
+// Define manageAODM to call loadAODM
+function manageAODM() {
+  loadAODM();
+}
+
+// Exporting the master function, the dictionary, and the array
+export { manageAODM, aodmDictionary, updatedArray };
