@@ -1,3 +1,4 @@
+let updatedArray = [];
 let aodmDictionary = {};
 import { formatJsTreeNode } from "./index.js";
 
@@ -37,24 +38,36 @@ function initializeAODM(dataNEW) {
     updatedDict
   );
 
-  aodmDictionary = updatedDict; // Save the dictionary for export
+  // Debugging updatedDict
+  if (!updatedDict || Object.keys(updatedDict).length === 0) {
+    console.log("😬•13a: updatedDict is empty or undefined:", updatedDict);
+  } else {
+    console.log("😬•13b: updatedDict has keys:", Object.keys(updatedDict));
+  }
 
-  const { updatedArray, updatedDictNEW } = updateArrayAndDictNEW(
+  aodmDictionary = updatedDict; // Save the dictionary for export
+  console.log("⭕️•13c: aodmDictionary after assignment:", aodmDictionary);
+
+  const { updatedArray: newArray, updatedDictNEW } = updateArrayAndDictNEW(
     [],
     updatedDict,
     renamedDataNEW
   );
+  updatedArray = newArray; // Save the updated array for export
   console.log(
     "•14: updateArrayAndDictNEW - updatedArray and updatedDictNEW:",
     updatedArray,
     updatedDictNEW
   );
 
+  // Log the final values before export
+  console.log("🟪•15: Final aodmDictionary before export:", aodmDictionary);
+  console.log("🟦•16: Final updatedArray before export:", updatedArray);
+
   // Additional processing can be added here
 }
 
-export { manageAODM, aodmDictionary }; // Exporting both the master function and the dictionary
-
+export { manageAODM, aodmDictionary, updatedArray }; // Exporting both the master function and the dictionary
 // 2. PARSE INITIAL DATA FUNCTION
 function parseInitialDataNEW(data) {
   return data.map((node) => {
