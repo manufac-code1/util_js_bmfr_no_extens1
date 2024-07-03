@@ -16,8 +16,14 @@ const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
 // At the top of index.js after the imports
-console.log("🟧Test: AODM dictionary from module at import:", aodmDictionary);
-console.log("🟫Test: Updated array from module at import:", updatedArray);
+console.log(
+  "🟧Path 1, Top: AODM dictionary from module at import:",
+  aodmDictionary
+);
+console.log(
+  "🟫Path 1, Top: Updated array from module at import:",
+  updatedArray
+);
 
 // 2. PARSE INITIAL DATA FUNCTION
 // Parsing the initial data structure into a usable format, preparing it for integration into the AODM
@@ -76,8 +82,11 @@ function setupAndPopulateJsTree(aodmData) {
   // Convert dictionary to array format suitable for jsTree
   const aodmArray = Object.values(aodmData);
 
-  console.log("AODM Dictionary:", JSON.stringify(aodmData, null, 2));
-  console.log("AODM Array for jsTree:", JSON.stringify(aodmArray, null, 2));
+  // console.log("Path 1/2 - AODM Dictionary:", JSON.stringify(aodmData, null, 2));
+  // console.log(
+  //   "Path 1/2 - AODM Array for jsTree:",
+  //   JSON.stringify(aodmArray, null, 2)
+  // );
 
   $("#bookmarkTree").jstree({
     core: {
@@ -218,16 +227,19 @@ document.addEventListener("DOMContentLoaded", function () {
   manageAODM(); // Calling the new AODM master function in manageAODM.js
 
   // Test the imported data
-  console.log("Test: aodmDictionary from module:", aodmDictionary);
-  console.log("Test: updatedArray from module:", updatedArray);
+  console.log(
+    "Path 1, Main Loop - aodmDictionary from module:",
+    aodmDictionary
+  );
+  console.log("Path 1, Main Loop - updatedArray from module:", updatedArray);
 
   setTimeout(() => {
     console.log(
-      "Test: AODM dictionary from module after initialization:",
+      "Path 1, Main Loop - AODM dictionary from module after initialization:",
       aodmDictionary
     );
     console.log(
-      "Test: Updated array from module after initialization:",
+      "Path 1, Main Loop - Updated array from module after initialization:",
       updatedArray
     );
 

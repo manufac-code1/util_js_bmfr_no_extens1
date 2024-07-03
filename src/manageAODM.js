@@ -131,7 +131,7 @@ function updateArrayAndDictNEW(array, dict, newBookmarkData) {
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArrayNEW(updatedArray);
 
-  console.log("updateArrayAndDictNEW - updatedArray: ", updatedArray);
+  console.log("Path 2 - updateArrayAndDictNEW - updatedArray: ", updatedArray);
   // console.log("SECTION 4r: ", updatedDict);
 
   return { updatedArray, updatedDict };
