@@ -119,6 +119,7 @@ function generateDictionaryFromArrayNEW(array) {
       Object.assign(dict, generateDictionaryFromArrayNEW(node.children));
     }
   });
+  // console.log("Path 2 - generateDictionaryFromArrayNEW - dict:", dict); // Commented out console log
   return dict;
 }
 
@@ -131,8 +132,14 @@ function updateArrayAndDictNEW(array, dict, newBookmarkData) {
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArrayNEW(updatedArray);
 
-  console.log("Path 2 - updateArrayAndDictNEW - updatedArray: ", updatedArray);
-  // console.log("SECTION 4r: ", updatedDict);
+  console.log(
+    "Path 2 💧💧- updateArrayAndDictNEW - Final updatedArray:",
+    updatedArray
+  );
+  console.log(
+    "Path 2 💧💧- updateArrayAndDictNEW - Final updatedDict:",
+    updatedDict
+  );
 
   return { updatedArray, updatedDict };
 }

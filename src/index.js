@@ -161,6 +161,8 @@ function getChildNodes(data, parentId) {
 }
 
 // Generating a dictionary from an array of nodes for quick lookups by ID, a key part of the AODM
+let generateDictionaryCounter = 0;
+
 function generateDictionaryFromArray(array) {
   const dict = {};
   array.forEach((node) => {
@@ -169,20 +171,27 @@ function generateDictionaryFromArray(array) {
       Object.assign(dict, generateDictionaryFromArray(node.children));
     }
   });
+  generateDictionaryCounter++;
   return dict;
 }
 
 // Updating the array and dictionary with new bookmark data, ensuring synchronization within the AODM
 function updateArrayAndDict(array, dict, newBookmarkData) {
-  array.length = 0;
-  for (let key in dict) delete dict[key];
+  array.length = 0; // Clear the array
+  for (let key in dict) delete dict[key]; // Clear the dictionary
 
   const updatedArray = newBookmarkData.map((node) => formatJsTreeNode(node));
-  array.push(...updatedArray);
-  const updatedDict = generateDictionaryFromArray(updatedArray);
+  array.push(...updatedArray); // Update the array with new data
+  const updatedDict = generateDictionaryFromArray(updatedArray); // Generate the dictionary from the updated array
 
-  // console.log("SECTION 4q, updatedArray: ", updatedArray);
-  // console.log("SECTION 4r, updatedDict: ", updatedDict);
+  console.log(
+    "Path 1 💧- updateArrayAndDict - Final updatedArray:",
+    updatedArray
+  );
+  console.log(
+    "Path 1 💧- updateArrayAndDict - Final updatedDict:",
+    updatedDict
+  );
 
   return { updatedArray, updatedDict };
 }
