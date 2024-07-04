@@ -3,10 +3,13 @@
 // Global variable to store selected node ID
 let selectedNodeId = null;
 
+// Global variable to store bookmark dictionary
+let bookmarkDict = {};
+
+// Import statements
 import "./index.css";
 import addEmojiToTitle from "./folderRenamer";
-
-import { manageAODM, aodmDictionary, updatedArray } from "./manageAODM.js";
+import { manageAODM, updatedArray } from "./manageAODM.js";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
@@ -16,14 +19,14 @@ const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
 // At the top of index.js after the imports
-console.log(
-  "🟧Path 1, Top: AODM dictionary from module at import:",
-  aodmDictionary
-);
-console.log(
-  "🟫Path 1, Top: Updated array from module at import:",
-  updatedArray
-);
+// console.log(
+//   "🟧Path 1, Top: AODM dictionary from module at import:",
+//   aodmDictionary
+// );
+// console.log(
+//   "🟫Path 1, Top: Updated array from module at import:",
+//   updatedArray
+// );
 
 // 2. PARSE INITIAL DATA FUNCTION
 // Parsing the initial data structure into a usable format, preparing it for integration into the AODM
@@ -76,53 +79,21 @@ function applyPostParsingRenaming(sst) {
   return sst;
 }
 
-// 3. RENAME NODES POST-PARSING
-// Setting up and populating the jsTree with the formatted bookmark data, using the AODM
-function setupAndPopulateJsTree(aodmData) {
-  // Convert dictionary to array format suitable for jsTree
-  const aodmArray = Object.values(aodmData);
+// 3. INITIALIZE AODM WITH PROCESSED DATA
+async function initializeAODMWithProcessedData(updatedArray, updatedDict) {
+  // Initialize the AODM using updatedArray and updatedDict
+  console.log(
+    "🟩 Initializing AODM with processed data:",
+    updatedArray,
+    updatedDict
+  );
+  bookmarkDict = updatedDict; // Assuming bookmarkDict is a global variable
 
-  // console.log("Path 1/2 - AODM Dictionary:", JSON.stringify(aodmData, null, 2));
-  // console.log(
-  //   "Path 1/2 - AODM Array for jsTree:",
-  //   JSON.stringify(aodmArray, null, 2)
-  // );
+  // Placeholder for any additional initialization logic needed
+  console.log("🟩 AODM initialized with:", updatedArray, updatedDict);
 
-  $("#bookmarkTree").jstree({
-    core: {
-      data: aodmArray,
-      check_callback: true,
-      themes: {
-        name: "default-dark",
-        dots: true,
-        icons: true,
-        url: "libs/themes/default-dark/style.css",
-      },
-    },
-    types: {
-      default: { icon: "jstree-folder" },
-      file: { icon: "jstree-file" },
-    },
-    state: { key: "bookmarkTreeState" },
-    plugins: ["state", "types", "search", "lazy"],
-  });
-
-  const jsTreeInstance = $("#bookmarkTree").jstree(true);
-
-  // Attach event handlers for node selection and deselection
-  $("#bookmarkTree").on("select_node.jstree", function (e, data) {
-    const selectedNode = data.node;
-    const updatedText = addEmojiToTitle(selectedNode.text, true);
-    jsTreeInstance.set_text(selectedNode, updatedText);
-    console.log("Node selected:", selectedNode.text);
-  });
-
-  $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
-    const deselectedNode = data.node;
-    const updatedText = addEmojiToTitle(deselectedNode.text, false);
-    jsTreeInstance.set_text(deselectedNode, updatedText);
-    console.log("Node deselected:", deselectedNode.text);
-  });
+  // Call setAODMData to set the bookmarkDict object
+  setAODMData(bookmarkDict);
 }
 
 // Formatting nodes for jsTree, ensuring all necessary properties are set for the AODM
@@ -251,17 +222,52 @@ function findPathToNode(nodes, nodeId) {
 function loadAODM_old() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
-    .then((dataNEW) => {
-      initializeAODM_old(dataNEW.children);
+    .then((data) => {
+      console.log("🟧 Fetched data:", data); // Confirm data being fetched
+      initializeAODM_old(data.children);
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
 }
 
+async function loadAndProcessBookmarkData() {
+  try {
+    const response = await fetch("data/chrome_bookmarks_all.json");
+    const data = await response.json();
+    console.log("Fetched data:", data);
+
+    const parsedData = parseInitialData(data.children);
+    console.log("Parsed data:", parsedData);
+    const cleanedData = cleanParsedData(parsedData);
+    console.log("Cleaned data:", cleanedData);
+    const renamedData = applyPostParsingRenaming(cleanedData);
+    console.log("Renamed data:", renamedData);
+
+    const bookmarkArray = [];
+    const bookmarkDict = {};
+
+    const { updatedArray, updatedDict } = updateArrayAndDict(
+      bookmarkArray,
+      bookmarkDict,
+      renamedData
+    );
+    console.log("Updated array:", updatedArray);
+    console.log("Updated dictionary:", updatedDict);
+
+    await initializeAODMWithProcessedData(updatedArray, updatedDict);
+  } catch (error) {
+    console.error("Error fetching or processing JSON data:", error);
+  }
+}
+
 // Define initializeAODM_old function
-function initializeAODM_old(dataNEW) {
-  const parsedDataNEW = parseInitialData(dataNEW);
-  const cleanedDataNEW = cleanParsedData(parsedDataNEW);
-  const renamedDataNEW = applyPostParsingRenaming(cleanedDataNEW);
+function initializeAODM_old(data) {
+  console.log("🟨 Initializing AODM with data:", data);
+  const parsedData = parseInitialData(data);
+  console.log("🟨 Parsed data:", parsedData);
+  const cleanedData = cleanParsedData(parsedData);
+  console.log("🟨 Cleaned data:", cleanedData);
+  const renamedData = applyPostParsingRenaming(cleanedData);
+  console.log("🟨 Renamed data:", renamedData);
 
   const bookmarkArray = [];
   const bookmarkDict = {};
@@ -269,10 +275,13 @@ function initializeAODM_old(dataNEW) {
   const { updatedArray, updatedDict } = updateArrayAndDict(
     bookmarkArray,
     bookmarkDict,
-    renamedDataNEW
+    renamedData
   );
+  console.log("🟨 Updated array:", updatedArray);
+  console.log("🟨 Updated dictionary:", updatedDict);
 
   const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+  console.log("🟨 Path to test node:", pathToTestNode);
 
   let rootNodes = updatedArray.map((node) => {
     if (node.id === "1") {
@@ -289,16 +298,25 @@ function initializeAODM_old(dataNEW) {
     rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
   }
 
-  // This is where the issue might be:
+  console.log("🟨 Root Nodes before jsTree setup:", rootNodes);
   // Ensure setupAndPopulateJsTree is called with rootNodes
   setupAndPopulateJsTree(rootNodes);
 }
 
+function setAODMData(bookmarkDict) {
+  // Set the bookmarkDict object
+  // Placeholder for any logic needed to set the bookmarkDict
+  console.log("🟩AODM Dictionary set:", bookmarkDict);
+}
+
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+  // console.log("🟧 DOMContentLoaded event fired"); // Confirm event is firing
+
   // Initiate DataPath2
   manageAODM();
 
-  // Call the new fetch function
-  loadAODM_old();
+  // Call the new function to load and process bookmark data
+  await loadAndProcessBookmarkData();
+  loadAODM_old(); // Ensure this is being called
 });
