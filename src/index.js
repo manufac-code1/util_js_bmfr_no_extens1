@@ -231,86 +231,74 @@ function setNodeState(nodes, nodeId, newState) {
   }
 }
 
+// Finding the path to a specific node within the tree structure
+function findPathToNode(nodes, nodeId) {
+  for (const node of nodes) {
+    if (node.id === nodeId) {
+      return [node.id];
+    }
+    if (node.children) {
+      const path = findPathToNode(node.children, nodeId);
+      if (path) {
+        return [node.id, ...path];
+      }
+    }
+  }
+  return null;
+}
+
+// Define loadAODM_old function
+function loadAODM_old() {
+  fetch("data/chrome_bookmarks_all.json")
+    .then((response) => response.json())
+    .then((dataNEW) => {
+      initializeAODM_old(dataNEW.children);
+    })
+    .catch((error) => console.error("Error fetching JSON data:", error));
+}
+
+// Define initializeAODM_old function
+function initializeAODM_old(dataNEW) {
+  const parsedDataNEW = parseInitialData(dataNEW);
+  const cleanedDataNEW = cleanParsedData(parsedDataNEW);
+  const renamedDataNEW = applyPostParsingRenaming(cleanedDataNEW);
+
+  const bookmarkArray = [];
+  const bookmarkDict = {};
+
+  const { updatedArray, updatedDict } = updateArrayAndDict(
+    bookmarkArray,
+    bookmarkDict,
+    renamedDataNEW
+  );
+
+  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
+
+  let rootNodes = updatedArray.map((node) => {
+    if (node.id === "1") {
+      return { ...node, state: { opened: BookmarksBarOpen } };
+    } else if (node.id === "2") {
+      return { ...node, state: { opened: OtherBookmarksOpen } };
+    } else if (node.id === "3") {
+      return { ...node, state: { opened: MobileBookmarksOpen } };
+    }
+    return node;
+  });
+
+  if (RenamingTestingFolderOpen && pathToTestNode) {
+    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+  }
+
+  // This is where the issue might be:
+  // Ensure setupAndPopulateJsTree is called with rootNodes
+  setupAndPopulateJsTree(rootNodes);
+}
+
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 document.addEventListener("DOMContentLoaded", function () {
-  manageAODM(); // Calling the new AODM master function in manageAODM.js
+  // Initiate DataPath2
+  manageAODM();
 
-  // Test the imported data
-  console.log(
-    "Path 1, Main Loop - aodmDictionary from module:",
-    aodmDictionary
-  );
-  console.log("Path 1, Main Loop - updatedArray from module:", updatedArray);
-
-  setTimeout(() => {
-    console.log(
-      "Path 1, Main Loop - AODM dictionary from module after initialization:",
-      aodmDictionary
-    );
-    console.log(
-      "Path 1, Main Loop - Updated array from module after initialization:",
-      updatedArray
-    );
-
-    // Continue with your existing code...
-    // For example, calling setupAndPopulateJsTree or any other function
-    // that requires the updatedArray and aodmDictionary
-
-    // Existing fetch and processing logic
-    fetch("data/chrome_bookmarks_all.json")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("01: fetch - data:", data);
-        console.log("02: fetch - data.children:", data.children);
-
-        const parsedData = parseInitialData(data.children);
-        console.log("10: parseInitialData - parsedData:", parsedData);
-
-        const cleanedData = cleanParsedData(parsedData);
-        console.log("11: cleanParsedData - cleanedData:", cleanedData);
-
-        const renamedData = applyPostParsingRenaming(cleanedData);
-        console.log("12: applyPostParsingRenaming - renamedData:", renamedData);
-
-        const bookmarkArray = [];
-        const bookmarkDict = {};
-
-        const { updatedArray, updatedDict } = updateArrayAndDict(
-          bookmarkArray,
-          bookmarkDict,
-          renamedData
-        );
-        console.log(
-          "13: updateArrayAndDict - updatedArray and updatedDict:",
-          updatedArray,
-          updatedDict
-        );
-
-        const pathToTestNode = findPathToNode(
-          updatedArray,
-          renamingTestFolderId
-        );
-        console.log("14: findPathToNode - pathToTestNode:", pathToTestNode);
-
-        let rootNodes = updatedArray.map((node) => {
-          console.log("15: map - rootNodes mapping:", rootNodes);
-          if (node.id === "1") {
-            return { ...node, state: { opened: BookmarksBarOpen } };
-          } else if (node.id === "2") {
-            return { ...node, state: { opened: OtherBookmarksOpen } };
-          } else if (node.id === "3") {
-            return { ...node, state: { opened: MobileBookmarksOpen } };
-          }
-          return node;
-        });
-
-        if (RenamingTestingFolderOpen && pathToTestNode) {
-          rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
-        }
-        console.log("16: before jsTree - rootNodes:", rootNodes);
-        setupAndPopulateJsTree(rootNodes);
-      })
-      .catch((error) => console.error("Error loading JSON data:", error));
-    setupAndPopulateJsTree(updatedArray);
-  }, 1000); // 1-second delay for illustration; adjust as needed
+  // Call the new fetch function
+  loadAODM_old();
 });
