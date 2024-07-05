@@ -3,10 +3,10 @@
 // 1. CONFIGURATION VARIABLES
 
 // Global variable to store selected node ID
-let selectedNodeId = null;
+let currentSelectedNode = null;
 
 // Global variable to store bookmark dictionary
-let bookmarkDict = {};
+let bmarksDictInitial = {};
 
 // Import statements
 import "./index.css";
@@ -35,11 +35,6 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 // 3. RENAME NODES POST-PARSING
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
 function setupAndPopulateJsTree(bookmarkData) {
-  console.log(
-    "🟧 Calling setupAndPopulateJsTree function with bookmarkData:",
-    bookmarkData
-  ); // Confirm function call
-
   $("#bookmarkTree").jstree({
     core: {
       data: bookmarkData,
@@ -66,29 +61,21 @@ function setupAndPopulateJsTree(bookmarkData) {
     const selectedNode = data.node;
     const updatedText = addEmojiToTitle(selectedNode.text, true);
     jsTreeInstance.set_text(selectedNode, updatedText);
-    console.log("🟧 Node selected:", selectedNode.text);
   });
 
   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
     const deselectedNode = data.node;
     const updatedText = addEmojiToTitle(deselectedNode.text, false);
     jsTreeInstance.set_text(deselectedNode, updatedText);
-    console.log("🟧 Node deselected:", deselectedNode.text);
   });
 }
 
-async function initializeAODMWithProcessedData(updatedArray, updatedDict) {
-  console.log(
-    "🟩 Initializing AODM with processed data:",
-    updatedArray,
-    updatedDict
-  );
-  bookmarkDict = updatedDict; // Assuming bookmarkDict is a global variable
+async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
+  bmarksDictInitial = bmarksMainDM; // Assuming bmarksDictInitial is a global variable
 
-  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-  console.log("🟨 Path to test node:", pathToTestNode);
+  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
 
-  let rootNodes = updatedArray.map((node) => {
+  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
     if (node.id === "1") {
       return { ...node, state: { opened: BookmarksBarOpen } };
     } else if (node.id === "2") {
@@ -100,13 +87,11 @@ async function initializeAODMWithProcessedData(updatedArray, updatedDict) {
   });
 
   if (RenamingTestingFolderOpen && pathToTestNode) {
-    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
   }
 
-  console.log("🟨 Root Nodes before jsTree setup:", rootNodes);
-
-  setAODMData(bookmarkDict); // Ensure this is being called correctly
-  setupAndPopulateJsTree(rootNodes); // Ensure jsTree is set up with the processed data
+  setAODMData(bmarksDictInitial); // Ensure this is being called correctly
+  setupAndPopulateJsTree(bmarksArrJSTree1); // Ensure jsTree is set up with the processed data
 }
 
 // Define loadAODM_old function
@@ -114,7 +99,6 @@ function loadAODM_old() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((data) => {
-      // console.log("🟧 Fetched data:", data); // Confirm data being fetched
       initializeAODM_old(data.children);
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
@@ -124,39 +108,31 @@ async function loadAndProcessBookmarkData() {
   try {
     const response = await fetch("data/chrome_bookmarks_all.json");
     const data = await response.json();
-    // console.log("Fetched data:", data);
 
-    const parsedData = parseInitialData(data.children);
-    // console.log("Parsed data:", parsedData);
-    const cleanedData = cleanParsedData(parsedData);
-    // console.log("Cleaned data:", cleanedData);
-    const renamedData = applyPostParsingRenaming(cleanedData);
-    // console.log("Renamed data:", renamedData);
+    const bmarksArrP1Parsed = parseInitialData(data.children);
+    const bmarksArrP2Cleaned = cleanParsedData(bmarksArrP1Parsed);
+    const bmarksArrP3Renamed = applyPostParsingRenaming(bmarksArrP2Cleaned);
 
-    const bookmarkArray = [];
-    const bookmarkDict = {};
-    //
-    const { updatedArray, updatedDict } = updateArrayAndDict(
-      bookmarkArray,
-      bookmarkDict,
-      renamedData
+    const bmarksObjFromJSON = [];
+    const bmarksDictInitial = {};
+
+    const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
+      bmarksObjFromJSON,
+      bmarksDictInitial,
+      bmarksArrP3Renamed
     );
-    // console.log("Updated array:", updatedArray);
-    // console.log("Updated dictionary:", updatedDict);
 
-    await initializeAODMWithProcessedData(updatedArray, updatedDict);
+    await initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM);
   } catch (error) {
     console.error("Error fetching or processing JSON data:", error);
   }
 }
 
-// Updated initializeJsTree function with additional console log
+// Updated initializeJsTree function
 function initializeJsTree() {
-  console.log("🟧 Calling initializeJsTree function"); // Confirm function call
-  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-  console.log("🟧 Path to test node:", pathToTestNode);
+  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
 
-  let rootNodes = updatedArray.map((node) => {
+  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
     if (node.id === "1") {
       return { ...node, state: { opened: BookmarksBarOpen } };
     } else if (node.id === "2") {
@@ -168,38 +144,30 @@ function initializeJsTree() {
   });
 
   if (RenamingTestingFolderOpen && pathToTestNode) {
-    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
   }
 
-  console.log("🟧 Root Nodes before jsTree setup:", rootNodes);
-  setupAndPopulateJsTree(rootNodes);
+  setupAndPopulateJsTree(bmarksArrJSTree1);
 }
 
 // Define initializeAODM_old function
 function initializeAODM_old(data) {
-  // console.log("🟨 Initializing AODM with data:", data);
-  const parsedData = parseInitialData(data);
-  // console.log("🟨 Parsed data:", parsedData);
-  const cleanedData = cleanParsedData(parsedData);
-  // console.log("🟨 Cleaned data:", cleanedData);
-  const renamedData = applyPostParsingRenaming(cleanedData);
-  // console.log("🟨 Renamed data:", renamedData);
+  const bmarksArrP1Parsed = parseInitialData(data);
+  const bmarksArrP2Cleaned = cleanParsedData(bmarksArrP1Parsed);
+  const bmarksArrP3Renamed = applyPostParsingRenaming(bmarksArrP2Cleaned);
 
-  const bookmarkArray = [];
-  const bookmarkDict = {};
+  const bmarksObjFromJSON = [];
+  const bmarksDictInitial = {};
 
-  const { updatedArray, updatedDict } = updateArrayAndDict(
-    bookmarkArray,
-    bookmarkDict,
-    renamedData
+  const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
+    bmarksObjFromJSON,
+    bmarksDictInitial,
+    bmarksArrP3Renamed
   );
-  // console.log("🟨 Updated array:", updatedArray);
-  // console.log("🟨 Updated dictionary:", updatedDict);
 
-  const pathToTestNode = findPathToNode(updatedArray, renamingTestFolderId);
-  // console.log("🟨 Path to test node:", pathToTestNode);
+  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
 
-  let rootNodes = updatedArray.map((node) => {
+  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
     if (node.id === "1") {
       return { ...node, state: { opened: BookmarksBarOpen } };
     } else if (node.id === "2") {
@@ -211,18 +179,14 @@ function initializeAODM_old(data) {
   });
 
   if (RenamingTestingFolderOpen && pathToTestNode) {
-    rootNodes = markNodesAsOpened(rootNodes, pathToTestNode);
+    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
   }
 
-  // console.log("🟨 Root Nodes before jsTree setup:", rootNodes);
-  // Ensure setupAndPopulateJsTree is called with rootNodes
-  setupAndPopulateJsTree(rootNodes);
+  setupAndPopulateJsTree(bmarksArrJSTree1);
 }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 document.addEventListener("DOMContentLoaded", async function () {
-  // console.log("🟧 DOMContentLoaded event fired"); // Confirm event is firing
-
   // Initiate DataPath2
   // manageAODM();
 

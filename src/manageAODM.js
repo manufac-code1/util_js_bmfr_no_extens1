@@ -1,34 +1,36 @@
-let updatedArray = [];
-let aodmDictionary = {};
+let bmarksMainAO = [];
+let bmarksDictProcessed_new = {};
 import { formatJsTreeNode } from "./index.js";
 
 function loadAODM() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
-    .then((dataNEW) => {
-      // console.log("•01: loadAODM - dataNEW:", dataNEW);
-      initializeAODM(dataNEW.children);
+    .then((bmarksObjFromJSON_new) => {
+      // console.log("•01: loadAODM - bmarksObjFromJSON_new:", bmarksObjFromJSON_new);
+      initializeAODM(bmarksObjFromJSON_new.children);
     })
     .catch((error) => console.error("• Error fetching JSON data:", error));
 }
 
-function initializeAODM(dataNEW) {
-  // console.log("•02: initializeAODM - dataNEW.children:", dataNEW);
-  // console.log("•03: Array.isArray - dataNEW:", Array.isArray(dataNEW));
+function initializeAODM(bmarksObjFromJSON_new) {
+  // console.log("•02: initializeAODM - bmarksObjFromJSON_new.children:", bmarksObjFromJSON_new);
+  // console.log("•03: Array.isArray - bmarksObjFromJSON_new:", Array.isArray(bmarksObjFromJSON_new));
 
-  const parsedDataNEW = parseInitialDataNEW(dataNEW);
-  // console.log("•10: parseInitialDataNEW - parsedDataNEW:", parsedDataNEW);
+  const bmarksArrP1Parsed_new = parseInitialDataNEW(bmarksObjFromJSON_new);
+  // console.log("•10: parseInitialDataNEW - bmarksArrP1Parsed_new:", bmarksArrP1Parsed_new);
 
-  const cleanedDataNEW = cleanParsedDataNEW(parsedDataNEW);
-  // console.log("•11: cleanParsedDataNEW - cleanedDataNEW:", cleanedDataNEW);
+  const bmarksArrP2Cleaned_new = cleanParsedDataNEW(bmarksArrP1Parsed_new);
+  // console.log("•11: cleanParsedDataNEW - bmarksArrP2Cleaned_new:", bmarksArrP2Cleaned_new);
 
-  const renamedDataNEW = applyPostParsingRenamingNEW(cleanedDataNEW);
+  const bmarksArrP3Renamed_new = applyPostParsingRenamingNEW(
+    bmarksArrP2Cleaned_new
+  );
   // console.log(
-  //   "•12: applyPostParsingRenamingNEW - renamedDataNEW:",
-  //   renamedDataNEW
+  //   "•12: applyPostParsingRenamingNEW - bmarksArrP3Renamed_new:",
+  //   bmarksArrP3Renamed_new
   // );
 
-  const updatedDict = generateDictionaryFromArrayNEW(renamedDataNEW);
+  const updatedDict = generateDictionaryFromArrayNEW(bmarksArrP3Renamed_new);
   // console.log(
   //   "•13: generateDictionaryFromArrayNEW - updatedDict:",
   //   updatedDict
@@ -41,24 +43,24 @@ function initializeAODM(dataNEW) {
   //   console.log("😬•13b: updatedDict has keys:", Object.keys(updatedDict));
   // }
 
-  aodmDictionary = updatedDict; // Save the dictionary for export
-  // console.log("⭕️•13c: aodmDictionary after assignment:", aodmDictionary);
+  bmarksDictProcessed_new = updatedDict; // Save the dictionary for export
+  // console.log("⭕️•13c: bmarksDictProcessed_new after assignment:", bmarksDictProcessed_new);
 
-  const { updatedArray: newArray, updatedDictNEW } = updateArrayAndDictNEW(
+  const { bmarksMainAO: newArray, bmarksMainDM_new } = updateArrayAndDictNEW(
     [],
     updatedDict,
-    renamedDataNEW
+    bmarksArrP3Renamed_new
   );
-  updatedArray = newArray; // Save the updated array for export
+  bmarksMainAO = newArray; // Save the updated array for export
   // console.log(
-  //   "•14: updateArrayAndDictNEW - updatedArray and updatedDictNEW:",
-  //   updatedArray,
-  //   updatedDictNEW
+  //   "•14: updateArrayAndDictNEW - bmarksMainAO and bmarksMainDM_new:",
+  //   bmarksMainAO,
+  //   bmarksMainDM_new
   // );
 
   // Log the final values before export
-  // console.log("🟪•15: Final aodmDictionary before export:", aodmDictionary);
-  // console.log("🟦•16: Final updatedArray before export:", updatedArray);
+  // console.log("🟪•15: Final bmarksDictProcessed_new before export:", bmarksDictProcessed_new);
+  // console.log("🟦•16: Final bmarksMainAO before export:", bmarksMainAO);
 
   // Additional processing can be added here
 }
@@ -128,20 +130,20 @@ function updateArrayAndDictNEW(array, dict, newBookmarkData) {
   array.length = 0;
   for (let key in dict) delete dict[key];
 
-  const updatedArray = newBookmarkData.map((node) => formatJsTreeNode(node));
-  array.push(...updatedArray);
-  const updatedDict = generateDictionaryFromArrayNEW(updatedArray);
+  const bmarksMainAO = newBookmarkData.map((node) => formatJsTreeNode(node));
+  array.push(...bmarksMainAO);
+  const updatedDict = generateDictionaryFromArrayNEW(bmarksMainAO);
 
   // console.log(
-  //   "Path 2 💧💧- updateArrayAndDictNEW - Final updatedArray:",
-  //   updatedArray
+  //   "Path 2 💧💧- updateArrayAndDictNEW - Final bmarksMainAO:",
+  //   bmarksMainAO
   // );
   // console.log(
   //   "Path 2 💧💧- updateArrayAndDictNEW - Final updatedDict:",
   //   updatedDict
   // );
 
-  return { updatedArray, updatedDict };
+  return { bmarksMainAO, updatedDict };
 }
 
 // Define manageAODM to call loadAODM
@@ -150,4 +152,4 @@ function manageAODM() {
 }
 
 // Exporting the master function, the dictionary, and the array
-export { manageAODM, aodmDictionary, updatedArray };
+export { manageAODM, bmarksDictProcessed_new, bmarksMainAO };

@@ -69,8 +69,8 @@ export function getChildNodes(data, parentId) {
   return data.filter((node) => node.parent === parentId);
 }
 
-// Declaration for generateDictionaryCounter
-let generateDictionaryCounter = 0;
+// Declaration for dictGenerationCount
+let dictGenerationCount = 0;
 
 // Generating a dictionary from an array of bookmarks, used for the AODM
 export function generateDictionaryFromArray(array) {
@@ -81,7 +81,7 @@ export function generateDictionaryFromArray(array) {
       Object.assign(dict, generateDictionaryFromArray(node.children));
     }
   });
-  generateDictionaryCounter++;
+  dictGenerationCount++;
   return dict;
 }
 
@@ -90,11 +90,11 @@ export function updateArrayAndDict(array, dict, newBookmarkData) {
   array.length = 0; // Clear the array
   for (let key in dict) delete dict[key]; // Clear the dictionary
 
-  const updatedArray = newBookmarkData.map((node) => formatJsTreeNode(node));
-  array.push(...updatedArray); // Update the array with new data
-  const updatedDict = generateDictionaryFromArray(updatedArray); // Generate the dictionary from the updated array
+  const bmarksMainAO = newBookmarkData.map((node) => formatJsTreeNode(node));
+  array.push(...bmarksMainAO); // Update the array with new data
+  const bmarksMainDM = generateDictionaryFromArray(bmarksMainAO); // Generate the dictionary from the updated array
 
-  return { updatedArray, updatedDict };
+  return { bmarksMainAO, bmarksMainDM };
 }
 
 export function markNodesAsOpened(nodes, path) {
@@ -145,8 +145,8 @@ export function findPathToNode(nodes, nodeId) {
   return null;
 }
 
-export function setAODMData(bookmarkDict) {
-  // Set the bookmarkDict object
-  // Placeholder for any logic needed to set the bookmarkDict
-  // console.log("🟩AODM Dictionary set:", bookmarkDict);
+export function setAODMData(bmarksDictInitial) {
+  // Set the bmarksDictInitial object
+  // Placeholder for any logic needed to set the bmarksDictInitial
+  // console.log("🟩AODM Dictionary set:", bmarksDictInitial);
 }
