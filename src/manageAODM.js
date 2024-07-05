@@ -6,43 +6,43 @@ function loadAODM() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((dataNEW) => {
-      console.log("•01: loadAODM - dataNEW:", dataNEW);
+      // console.log("•01: loadAODM - dataNEW:", dataNEW);
       initializeAODM(dataNEW.children);
     })
     .catch((error) => console.error("• Error fetching JSON data:", error));
 }
 
 function initializeAODM(dataNEW) {
-  console.log("•02: initializeAODM - dataNEW.children:", dataNEW);
-  console.log("•03: Array.isArray - dataNEW:", Array.isArray(dataNEW));
+  // console.log("•02: initializeAODM - dataNEW.children:", dataNEW);
+  // console.log("•03: Array.isArray - dataNEW:", Array.isArray(dataNEW));
 
   const parsedDataNEW = parseInitialDataNEW(dataNEW);
-  console.log("•10: parseInitialDataNEW - parsedDataNEW:", parsedDataNEW);
+  // console.log("•10: parseInitialDataNEW - parsedDataNEW:", parsedDataNEW);
 
   const cleanedDataNEW = cleanParsedDataNEW(parsedDataNEW);
-  console.log("•11: cleanParsedDataNEW - cleanedDataNEW:", cleanedDataNEW);
+  // console.log("•11: cleanParsedDataNEW - cleanedDataNEW:", cleanedDataNEW);
 
   const renamedDataNEW = applyPostParsingRenamingNEW(cleanedDataNEW);
-  console.log(
-    "•12: applyPostParsingRenamingNEW - renamedDataNEW:",
-    renamedDataNEW
-  );
+  // console.log(
+  //   "•12: applyPostParsingRenamingNEW - renamedDataNEW:",
+  //   renamedDataNEW
+  // );
 
   const updatedDict = generateDictionaryFromArrayNEW(renamedDataNEW);
-  console.log(
-    "•13: generateDictionaryFromArrayNEW - updatedDict:",
-    updatedDict
-  );
+  // console.log(
+  //   "•13: generateDictionaryFromArrayNEW - updatedDict:",
+  //   updatedDict
+  // );
 
   // Debugging updatedDict
-  if (!updatedDict || Object.keys(updatedDict).length === 0) {
-    console.log("😬•13a: updatedDict is empty or undefined:", updatedDict);
-  } else {
-    console.log("😬•13b: updatedDict has keys:", Object.keys(updatedDict));
-  }
+  // if (!updatedDict || Object.keys(updatedDict).length === 0) {
+  //   console.log("😬•13a: updatedDict is empty or undefined:", updatedDict);
+  // } else {
+  //   console.log("😬•13b: updatedDict has keys:", Object.keys(updatedDict));
+  // }
 
   aodmDictionary = updatedDict; // Save the dictionary for export
-  console.log("⭕️•13c: aodmDictionary after assignment:", aodmDictionary);
+  // console.log("⭕️•13c: aodmDictionary after assignment:", aodmDictionary);
 
   const { updatedArray: newArray, updatedDictNEW } = updateArrayAndDictNEW(
     [],
@@ -50,15 +50,15 @@ function initializeAODM(dataNEW) {
     renamedDataNEW
   );
   updatedArray = newArray; // Save the updated array for export
-  console.log(
-    "•14: updateArrayAndDictNEW - updatedArray and updatedDictNEW:",
-    updatedArray,
-    updatedDictNEW
-  );
+  // console.log(
+  //   "•14: updateArrayAndDictNEW - updatedArray and updatedDictNEW:",
+  //   updatedArray,
+  //   updatedDictNEW
+  // );
 
   // Log the final values before export
-  console.log("🟪•15: Final aodmDictionary before export:", aodmDictionary);
-  console.log("🟦•16: Final updatedArray before export:", updatedArray);
+  // console.log("🟪•15: Final aodmDictionary before export:", aodmDictionary);
+  // console.log("🟦•16: Final updatedArray before export:", updatedArray);
 
   // Additional processing can be added here
 }
@@ -132,14 +132,14 @@ function updateArrayAndDictNEW(array, dict, newBookmarkData) {
   array.push(...updatedArray);
   const updatedDict = generateDictionaryFromArrayNEW(updatedArray);
 
-  console.log(
-    "Path 2 💧💧- updateArrayAndDictNEW - Final updatedArray:",
-    updatedArray
-  );
-  console.log(
-    "Path 2 💧💧- updateArrayAndDictNEW - Final updatedDict:",
-    updatedDict
-  );
+  // console.log(
+  //   "Path 2 💧💧- updateArrayAndDictNEW - Final updatedArray:",
+  //   updatedArray
+  // );
+  // console.log(
+  //   "Path 2 💧💧- updateArrayAndDictNEW - Final updatedDict:",
+  //   updatedDict
+  // );
 
   return { updatedArray, updatedDict };
 }
