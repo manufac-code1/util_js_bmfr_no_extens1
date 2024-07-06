@@ -15,9 +15,9 @@ export function formatJsTreeNode(node) {
 }
 
 // Parsing the initial data structure into a usable format, preparing it for integration into the AODM
-export function parseInitialData(data) {
+export function bmarksProc1Parse(data) {
   return data.map((node) => {
-    const children = node.children ? parseInitialData(node.children) : [];
+    const children = node.children ? bmarksProc1Parse(node.children) : [];
     return {
       id: node.id,
       title: node.text || null,
@@ -28,7 +28,7 @@ export function parseInitialData(data) {
 }
 
 // Cleaning the parsed data to ensure it has the correct properties for the AODM
-export function cleanParsedData(data) {
+export function bmarksProc2Clean(data) {
   return data.map((node) => {
     let title;
 
@@ -43,13 +43,13 @@ export function cleanParsedData(data) {
       ...node,
       title: title,
       state: node.state || { opened: false },
-      children: node.children ? cleanParsedData(node.children) : [],
+      children: node.children ? bmarksProc2Clean(node.children) : [],
     };
   });
 }
 
 // Applying post-parsing renaming to nodes for consistency in the AODM
-export function applyPostParsingRenaming(sst) {
+export function bmarksProc3Rename(sst) {
   sst.forEach((node) => {
     // Standardize the name for the `chrome://bookmarks/` bookmark
     if (node.url === "chrome://bookmarks/") {
@@ -58,7 +58,7 @@ export function applyPostParsingRenaming(sst) {
 
     // Apply other renaming rules as needed
     if (node.children) {
-      applyPostParsingRenaming(node.children);
+      bmarksProc3Rename(node.children);
     }
   });
   return sst;

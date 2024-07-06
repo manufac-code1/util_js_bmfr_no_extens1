@@ -13,9 +13,9 @@ import "./index.css";
 import addEmojiToTitle from "./folderRenamer";
 import {
   formatJsTreeNode,
-  parseInitialData,
-  cleanParsedData,
-  applyPostParsingRenaming,
+  bmarksProc1Parse,
+  bmarksProc2Clean,
+  bmarksProc3Rename,
   getChildNodes,
   generateDictionaryFromArray,
   updateArrayAndDict,
@@ -23,7 +23,7 @@ import {
   setNodeState,
   findPathToNode,
   setAODMData,
-} from "./index_js_offload_1.js"; // Import the functions
+} from "./index_offload.js"; // Import the functions
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
@@ -34,7 +34,7 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 
 // 3. RENAME NODES POST-PARSING
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
-function setupAndPopulateJsTree(bookmarkData) {
+function jsTreeSetupAndPopulate(bookmarkData) {
   $("#bookmarkTree").jstree({
     core: {
       data: bookmarkData,
@@ -91,7 +91,7 @@ async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   }
 
   setAODMData(bmarksDictInitial); // Ensure this is being called correctly
-  setupAndPopulateJsTree(bmarksArrJSTree1); // Ensure jsTree is set up with the processed data
+  jsTreeSetupAndPopulate(bmarksArrJSTree1); // Ensure jsTree is set up with the processed data
 }
 
 // Define loadAODM_old function
@@ -109,9 +109,9 @@ async function loadAndProcessBookmarkData() {
     const response = await fetch("data/chrome_bookmarks_all.json");
     const data = await response.json();
 
-    const bmarksArrP1Parsed = parseInitialData(data.children);
-    const bmarksArrP2Cleaned = cleanParsedData(bmarksArrP1Parsed);
-    const bmarksArrP3Renamed = applyPostParsingRenaming(bmarksArrP2Cleaned);
+    const bmarksArrP1Parsed = bmarksProc1Parse(data.children);
+    const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
+    const bmarksArrP3Renamed = bmarksProc3Rename(bmarksArrP2Cleaned);
 
     const bmarksObjFromJSON = [];
     const bmarksDictInitial = {};
@@ -128,33 +128,38 @@ async function loadAndProcessBookmarkData() {
   }
 }
 
-// Updated initializeJsTree function
-function initializeJsTree() {
-  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-
-  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
-    if (node.id === "1") {
-      return { ...node, state: { opened: BookmarksBarOpen } };
-    } else if (node.id === "2") {
-      return { ...node, state: { opened: OtherBookmarksOpen } };
-    } else if (node.id === "3") {
-      return { ...node, state: { opened: MobileBookmarksOpen } };
+// Function to prepare the bmarksArrJSTree1 array based on bmarksMainAO
+function prepareJSTreeNodes(bmarksMainAO, pathToTestNode) {
+  let bmarksArrJSTree1 = bmarksMainAO.map((bmarkNode) => {
+    if (bmarkNode.id === "1") {
+      return { ...bmarkNode, state: { opened: BookmarksBarOpen } };
+    } else if (bmarkNode.id === "2") {
+      return { ...bmarkNode, state: { opened: OtherBookmarksOpen } };
+    } else if (bmarkNode.id === "3") {
+      return { ...bmarkNode, state: { opened: MobileBookmarksOpen } };
     }
-    return node;
+    return bmarkNode;
   });
 
   if (RenamingTestingFolderOpen && pathToTestNode) {
     bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
   }
 
-  setupAndPopulateJsTree(bmarksArrJSTree1);
+  return bmarksArrJSTree1;
+}
+
+// Updated initializeJsTree function
+function initializeJsTree() {
+  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
+  const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
+  jsTreeSetupAndPopulate(bmarksArrJSTree1);
 }
 
 // Define initializeAODM_old function
 function initializeAODM_old(data) {
-  const bmarksArrP1Parsed = parseInitialData(data);
-  const bmarksArrP2Cleaned = cleanParsedData(bmarksArrP1Parsed);
-  const bmarksArrP3Renamed = applyPostParsingRenaming(bmarksArrP2Cleaned);
+  const bmarksArrP1Parsed = bmarksProc1Parse(data);
+  const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
+  const bmarksArrP3Renamed = bmarksProc3Rename(bmarksArrP2Cleaned);
 
   const bmarksObjFromJSON = [];
   const bmarksDictInitial = {};
@@ -166,23 +171,9 @@ function initializeAODM_old(data) {
   );
 
   const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
+  const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
 
-  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
-    if (node.id === "1") {
-      return { ...node, state: { opened: BookmarksBarOpen } };
-    } else if (node.id === "2") {
-      return { ...node, state: { opened: OtherBookmarksOpen } };
-    } else if (node.id === "3") {
-      return { ...node, state: { opened: MobileBookmarksOpen } };
-    }
-    return node;
-  });
-
-  if (RenamingTestingFolderOpen && pathToTestNode) {
-    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
-  }
-
-  setupAndPopulateJsTree(bmarksArrJSTree1);
+  jsTreeSetupAndPopulate(bmarksArrJSTree1);
 }
 
 // 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
