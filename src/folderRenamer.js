@@ -11,6 +11,8 @@
 //   return title;
 // }
 
+import { jsTreeInstance } from "./jsTreeSetup"; // Ensure jsTreeInstance is accessible here
+
 export function renameChildFolders(selectedNode, isSelected, candidateNewName) {
   console.log(
     "Renaming child folders for node:",
@@ -20,7 +22,8 @@ export function renameChildFolders(selectedNode, isSelected, candidateNewName) {
   );
   if (selectedNode.children && selectedNode.children.length > 0) {
     console.log("Selected node has children:", selectedNode.children); // Log children
-    selectedNode.children.forEach((child) => {
+    selectedNode.children.forEach((childId) => {
+      const child = jsTreeInstance.get_node(childId);
       console.log(
         "Processing child node:",
         child,
@@ -28,14 +31,13 @@ export function renameChildFolders(selectedNode, isSelected, candidateNewName) {
         candidateNewName
       ); // Log each child node with candidateNewName
       if (child.type === "default") {
-        // Assuming 'default' type indicates a folder
-        // console.log("Child node is a folder:", child); // Log folder type child
         const originalName = child.text;
         child.originalName = originalName; // Store the original name
-        child.text = `${candidateNewName} [${originalName}]`; // Rename the folder
-        console.log("Renamed child folder:", child, "to:", child.text);
-      } else {
-        // console.log("Child node is not a folder:", child);
+        const newName = `${candidateNewName} [${originalName}]`; // Rename the folder
+        console.log("Renamed child folder:", child, "to:", newName);
+
+        // Use jsTree's rename_node method
+        jsTreeInstance.rename_node(child.id, newName);
       }
     });
   } else {
@@ -43,12 +45,24 @@ export function renameChildFolders(selectedNode, isSelected, candidateNewName) {
   }
   if (!isSelected) {
     if (selectedNode.children && selectedNode.children.length > 0) {
-      selectedNode.children.forEach((child) => {
+      selectedNode.children.forEach((childId) => {
+        const child = jsTreeInstance.get_node(childId);
         if (child.type === "default" && child.originalName) {
-          child.text = child.originalName; // Restore the original name
-          console.log("Restored child folder name:", child);
+          const originalName = child.originalName;
+          console.log(
+            "Restored child folder name:",
+            child,
+            "to:",
+            originalName
+          );
+
+          // Use jsTree's rename_node method to restore original name
+          jsTreeInstance.rename_node(child.id, originalName);
         }
       });
     }
   }
+
+  // Refresh the tree to reflect the changes
+  jsTreeInstance.refresh();
 }

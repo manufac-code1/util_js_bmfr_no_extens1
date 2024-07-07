@@ -100,4 +100,26 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
       setPreviousSelectedNode(null);
     }
   });
+
+  // Handle renaming to prevent nested renaming
+  $("#bookmarkTree").on("rename_node.jstree", function (e, data) {
+    const node = data.node;
+    const originalTexts = getOriginalTexts();
+    const originalName = originalTexts[node.id] || node.text;
+
+    // Check if the new name already includes the candidate name
+    const candidateNewName = prompt("Enter a new name", originalName);
+    if (originalName.includes(candidateNewName)) {
+      alert("New name cannot be part of the original name");
+      return;
+    }
+
+    // Update the tree's data
+    node.text = `${candidateNewName} [${originalName}]`;
+    originalTexts[node.id] = originalName;
+    setOriginalTexts(originalTexts);
+
+    // Refresh the tree to reflect the changes
+    jsTreeInstance.refresh();
+  });
 }

@@ -17,7 +17,7 @@ import {
   findPathToNode,
   setAODMData,
 } from "./index_offload.js"; // Import the functions
-// import addEmojiToTitle from "./folderRenamer";
+
 import { renameChildFolders } from "./folderRenamer.js";
 import { jsTreeSetupAndPopulate } from "./jsTreeSetup.js";
 import {
