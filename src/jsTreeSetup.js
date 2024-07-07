@@ -1,8 +1,10 @@
+import { renameChildFolders } from "./index.js";
 import {
-  originalTexts,
-  previousSelectedNode,
-  renameChildFolders,
-} from "./index.js";
+  setPreviousSelectedNode,
+  getPreviousSelectedNode,
+  setOriginalTexts,
+  getOriginalTexts,
+} from "./state.js";
 
 export function jsTreeSetupAndPopulate(bookmarkData) {
   console.log("Setting up jsTree with data:", bookmarkData); // Log initial data
@@ -38,8 +40,10 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
     console.log("Node selected:", selectedNode); // Log selected node
 
     // Store original text if it's not already stored
+    const originalTexts = getOriginalTexts();
     if (!originalTexts[selectedNode.id]) {
       originalTexts[selectedNode.id] = selectedNode.text;
+      setOriginalTexts(originalTexts);
     }
 
     // Use jsTree command to get children of the selected node
@@ -62,7 +66,7 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
     }
 
     // Update the previously selected node
-    previousSelectedNode = selectedNode;
+    setPreviousSelectedNode(selectedNode);
   });
 
   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
@@ -89,8 +93,11 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
     }
 
     // Clear previously selected node if it is the same as deselected node
-    if (previousSelectedNode && previousSelectedNode.id === deselectedNode.id) {
-      previousSelectedNode = null;
+    if (
+      getPreviousSelectedNode() &&
+      getPreviousSelectedNode().id === deselectedNode.id
+    ) {
+      setPreviousSelectedNode(null);
     }
   });
 }

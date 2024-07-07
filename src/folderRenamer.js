@@ -29,13 +29,13 @@ export function renameChildFolders(selectedNode, isSelected, candidateNewName) {
       ); // Log each child node with candidateNewName
       if (child.type === "default") {
         // Assuming 'default' type indicates a folder
-        console.log("Child node is a folder:", child); // Log folder type child
+        // console.log("Child node is a folder:", child); // Log folder type child
         const originalName = child.text;
         child.originalName = originalName; // Store the original name
         child.text = `${candidateNewName} [${originalName}]`; // Rename the folder
         console.log("Renamed child folder:", child, "to:", child.text);
       } else {
-        console.log("Child node is not a folder:", child);
+        // console.log("Child node is not a folder:", child);
       }
     });
   } else {

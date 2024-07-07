@@ -20,6 +20,12 @@ import {
 // import addEmojiToTitle from "./folderRenamer";
 import { renameChildFolders } from "./folderRenamer.js";
 import { jsTreeSetupAndPopulate } from "./jsTreeSetup.js";
+import {
+  setPreviousSelectedNode,
+  getPreviousSelectedNode,
+  setOriginalTexts,
+  getOriginalTexts,
+} from "./state.js";
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
