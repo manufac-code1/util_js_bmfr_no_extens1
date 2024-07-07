@@ -31,7 +31,6 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID to open i
 // 2. Set up and populating the jsTree with the formatted bookmark data, using the AODM
 let previousSelectedNode = null;
 let originalTexts = {};
-let isInitializing = true; // Initialization flag
 
 // function jsTreeSetupAndPopulate(bookmarkData) {
 //   console.log("Setting up jsTree with data:", bookmarkData); // Log initial data
@@ -251,9 +250,4 @@ document.addEventListener("DOMContentLoaded", async function () {
   // loadAODM_old(); // Ensure this is being called
 });
 
-export {
-  isInitializing,
-  originalTexts,
-  previousSelectedNode,
-  renameChildFolders,
-};
+export { originalTexts, previousSelectedNode, renameChildFolders };

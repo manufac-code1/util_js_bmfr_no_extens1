@@ -1,5 +1,4 @@
 import {
-  isInitializing,
   originalTexts,
   previousSelectedNode,
   renameChildFolders,
@@ -35,11 +34,6 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
 
   // Attach event handlers for node selection and deselection
   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
-    if (isInitializing) {
-      console.log("Skipping renaming during initialization.");
-      return;
-    }
-
     const selectedNode = data.node;
     console.log("Node selected:", selectedNode); // Log selected node
 
@@ -99,10 +93,4 @@ export function jsTreeSetupAndPopulate(bookmarkData) {
       previousSelectedNode = null;
     }
   });
-
-  // Set isInitializing to false after initial setup
-  setTimeout(() => {
-    isInitializing = false;
-    console.log("Initialization complete.");
-  }, 0);
 }
