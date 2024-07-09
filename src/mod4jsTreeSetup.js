@@ -8,30 +8,27 @@ import {
 import { folderRenameTest1 } from "./mod5FolderRenamer.js";
 
 let jsTreeInstance;
+let isRenaming = false;
 
 function handleSelectionChange(node, isSelected) {
+  console.log(
+    `🔍 handleSelectionChange called for node: ${node.text}, isSelected: ${isSelected}`
+  );
+
   const currentTitle = node.text;
-  const previousSelectedNode = getPreviousSelectedNode();
-  const folderTitlesPrev = getFolderTitlePrev();
 
   if (isSelected) {
-    if (previousSelectedNode && previousSelectedNode.id === node.id) {
-      console.log("🔍 Node is already selected:", node.text);
+    if (isRenaming) {
+      console.log("Renaming in progress, skipping rename.");
       return currentTitle;
     }
-
-    const previousTitle = folderTitlesPrev[node.id] || currentTitle;
+    isRenaming = true;
+    const previousTitle = currentTitle;
     const newTitle = `NewNameHere [${previousTitle}]`;
-    folderTitlesPrev[node.id] = currentTitle;
-
-    setPreviousSelectedNode(node);
-    setFolderTitlePrev(folderTitlesPrev);
-
+    isRenaming = false;
     return newTitle;
   } else {
-    const originalTitle = folderTitlesPrev[node.id] || currentTitle;
-    setPreviousSelectedNode(null);
-    return originalTitle;
+    return currentTitle;
   }
 }
 
@@ -73,13 +70,29 @@ export function jsTreeSetup3EventHandlers() {
 
   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
     const selectedNode = data.node;
-    const updatedText = handleSelectionChange(selectedNode, true);
-    jsTreeInstance.set_text(selectedNode, updatedText);
+
+    // Get the previously selected node
+    const previousSelectedNode = getPreviousSelectedNode();
+
+    // Check if the selected node is different from the previously selected node
+    if (!previousSelectedNode || previousSelectedNode.id !== selectedNode.id) {
+      const updatedText = handleSelectionChange(selectedNode, true);
+      jsTreeInstance.set_text(selectedNode, updatedText);
+
+      // Update the previous selected node
+      setPreviousSelectedNode(selectedNode);
+    }
   });
 
   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
     const deselectedNode = data.node;
     const updatedText = handleSelectionChange(deselectedNode, false);
     jsTreeInstance.set_text(deselectedNode, updatedText);
+
+    // Clear the previous selected node if it is the deselected node
+    const previousSelectedNode = getPreviousSelectedNode();
+    if (previousSelectedNode && previousSelectedNode.id === deselectedNode.id) {
+      setPreviousSelectedNode(null);
+    }
   });
 }
