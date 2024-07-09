@@ -1,6 +1,8 @@
 import {
   setPreviousSelectedNode,
   getPreviousSelectedNode,
+  setFolderTitlePrev,
+  getFolderTitlePrev,
 } from "./mod8State.js";
 
 import { folderRenameTest1 } from "./mod5FolderRenamer.js";
@@ -8,20 +10,28 @@ import { folderRenameTest1 } from "./mod5FolderRenamer.js";
 let jsTreeInstance;
 
 function handleSelectionChange(node, isSelected) {
-  console.log(
-    `🔍 handleSelectionChange called for node: ${node.text}, isSelected: ${isSelected}`
-  );
-
   const currentTitle = node.text;
+  const previousSelectedNode = getPreviousSelectedNode();
+  const folderTitlesPrev = getFolderTitlePrev();
 
   if (isSelected) {
-    const previousTitle = currentTitle;
+    if (previousSelectedNode && previousSelectedNode.id === node.id) {
+      console.log("🔍 Node is already selected:", node.text);
+      return currentTitle;
+    }
+
+    const previousTitle = folderTitlesPrev[node.id] || currentTitle;
     const newTitle = `NewNameHere [${previousTitle}]`;
-    console.log(`🟩 Renaming to: ${newTitle}`);
+    folderTitlesPrev[node.id] = currentTitle;
+
+    setPreviousSelectedNode(node);
+    setFolderTitlePrev(folderTitlesPrev);
+
     return newTitle;
   } else {
-    console.log(`🟩 Keeping title: ${currentTitle}`);
-    return currentTitle;
+    const originalTitle = folderTitlesPrev[node.id] || currentTitle;
+    setPreviousSelectedNode(null);
+    return originalTitle;
   }
 }
 
@@ -63,29 +73,13 @@ export function jsTreeSetup3EventHandlers() {
 
   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
     const selectedNode = data.node;
-
-    // Get the previously selected node
-    const previousSelectedNode = getPreviousSelectedNode();
-
-    // Check if the selected node is different from the previously selected node
-    if (!previousSelectedNode || previousSelectedNode.id !== selectedNode.id) {
-      const updatedText = handleSelectionChange(selectedNode, true);
-      jsTreeInstance.set_text(selectedNode, updatedText);
-
-      // Update the previous selected node
-      setPreviousSelectedNode(selectedNode);
-    }
+    const updatedText = handleSelectionChange(selectedNode, true);
+    jsTreeInstance.set_text(selectedNode, updatedText);
   });
 
   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
     const deselectedNode = data.node;
     const updatedText = handleSelectionChange(deselectedNode, false);
     jsTreeInstance.set_text(deselectedNode, updatedText);
-
-    // Clear the previous selected node if it is the deselected node
-    const previousSelectedNode = getPreviousSelectedNode();
-    if (previousSelectedNode && previousSelectedNode.id === deselectedNode.id) {
-      setPreviousSelectedNode(null);
-    }
   });
 }
