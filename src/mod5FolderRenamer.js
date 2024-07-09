@@ -18,7 +18,12 @@ import {
 //   return title;
 // }
 
+let renameCounter = 0; // Initialize the counter
+
 export function folderRenameTest1(node, isSelected) {
+  renameCounter++; // Increment the counter
+  console.log(`folderRenameTest1 called ${renameCounter} times`); // Log the counter
+
   const currentTitle = node.text;
   if (isSelected) {
     const previousTitle = currentTitle;
