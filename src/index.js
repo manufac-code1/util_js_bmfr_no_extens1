@@ -8,7 +8,14 @@ let bmarksDictInitial = {};
 
 // Import statements
 import "./index.css";
-import addEmojiToTitle from "./mod5FolderRenamer.js";
+import { folderRenameTest1 } from "./mod5FolderRenamer.js";
+import {
+  setPreviousSelectedNode,
+  getPreviousSelectedNode,
+  setFolderTitlePrev,
+  getFolderTitlePrev,
+} from "./mod8State.js";
+
 import {
   formatJsTreeNode,
   bmarksProc1Parse,
@@ -32,7 +39,9 @@ const renamingTestFolderId = "33645"; // Replace with actual folder ID for testi
 
 // 3. RENAME NODES POST-PARSING
 // Setting up and populating the jsTree with the formatted bookmark data, using the AODM
-function jsTreeSetupAndPopulate(bookmarkData) {
+
+function jsTreeSetup1Initial(bookmarkData) {
+  console.log("Initializing jsTree with data:", bookmarkData);
   $("#bookmarkTree").jstree({
     core: {
       data: bookmarkData,
@@ -51,22 +60,80 @@ function jsTreeSetupAndPopulate(bookmarkData) {
     state: { key: "bookmarkTreeState" },
     plugins: ["state", "types", "search", "lazy"],
   });
+  console.log("jsTree initialized");
+}
 
+function jsTreeSetup2Populate(bookmarkData) {
+  console.log("Populating jsTree with data:", bookmarkData);
+  const jsTreeInstance = $("#bookmarkTree").jstree(true);
+  jsTreeInstance.settings.core.data = bookmarkData;
+  jsTreeInstance.refresh();
+  console.log("jsTree populated");
+}
+
+function jsTreeSetup3EventHandlers() {
+  console.log("Setting up event handlers");
   const jsTreeInstance = $("#bookmarkTree").jstree(true);
 
-  // Attach event handlers for node selection and deselection
   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
     const selectedNode = data.node;
-    const updatedText = addEmojiToTitle(selectedNode.text, true);
+    console.log("Node selected:", selectedNode);
+    const updatedText = folderRenameTest1(selectedNode, true);
     jsTreeInstance.set_text(selectedNode, updatedText);
   });
 
   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
     const deselectedNode = data.node;
-    const updatedText = addEmojiToTitle(deselectedNode.text, false);
+    console.log("Node deselected:", deselectedNode);
+    const updatedText = folderRenameTest1(deselectedNode, false);
     jsTreeInstance.set_text(deselectedNode, updatedText);
   });
+  console.log("Event handlers set up");
 }
+
+function jsTreeSetupAndPopulate(bookmarkData) {
+  console.log("Starting jsTree setup and populate");
+  jsTreeSetup1Initial(bookmarkData);
+  jsTreeSetup2Populate(bookmarkData);
+  jsTreeSetup3EventHandlers();
+  console.log("jsTree setup and populate complete");
+}
+
+// function jsTreeSetupAndPopulate(bookmarkData) {
+//   $("#bookmarkTree").jstree({
+//     core: {
+//       data: bookmarkData,
+//       check_callback: true,
+//       themes: {
+//         name: "default-dark",
+//         dots: true,
+//         icons: true,
+//         url: "libs/themes/default-dark/style.css",
+//       },
+//     },
+//     types: {
+//       default: { icon: "jstree-folder" },
+//       file: { icon: "jstree-file" },
+//     },
+//     state: { key: "bookmarkTreeState" },
+//     plugins: ["state", "types", "search", "lazy"],
+//   });
+
+//   const jsTreeInstance = $("#bookmarkTree").jstree(true);
+
+//   // Attach event handlers for node selection and deselection
+//   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
+//     const selectedNode = data.node;
+//     const updatedText = addEmojiToTitle(selectedNode.text, true);
+//     jsTreeInstance.set_text(selectedNode, updatedText);
+//   });
+
+//   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
+//     const deselectedNode = data.node;
+//     const updatedText = addEmojiToTitle(deselectedNode.text, false);
+//     jsTreeInstance.set_text(deselectedNode, updatedText);
+//   });
+// }
 
 async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   bmarksDictInitial = bmarksMainDM; // Assuming bmarksDictInitial is a global variable
