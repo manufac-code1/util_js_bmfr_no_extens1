@@ -1,5 +1,3 @@
-// src/index.js
-
 // 1. CONFIGURATION VARIABLES
 
 // Global variable to store selected node ID
@@ -10,7 +8,7 @@ let bmarksDictInitial = {};
 
 // Import statements
 import "./index.css";
-import addEmojiToTitle from "./folderRenamer";
+import addEmojiToTitle from "./mod5FolderRenamer.js";
 import {
   formatJsTreeNode,
   bmarksProc1Parse,
@@ -23,7 +21,7 @@ import {
   setNodeState,
   findPathToNode,
   setAODMData,
-} from "./index_offload.js"; // Import the functions
+} from "./mod9Index_offload.js"; // Import the functions
 
 // Configuration variables to control the state of various parts of the bookmarks tree
 const BookmarksBarOpen = false;
