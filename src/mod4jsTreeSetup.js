@@ -3,32 +3,13 @@ import {
   getPreviousSelectedNode,
   setFolderTitlePrev,
   getFolderTitlePrev,
+  clearFolderTitlePrev,
 } from "./mod8State.js";
 
 import { folderRenameTest1 } from "./mod5FolderRenamer.js";
 
 let jsTreeInstance;
 let isRenaming = false;
-
-function handleSelectionChange(node, isSelected) {
-  console.log(
-    `🔍 handleSelectionChange called for node: ${node.text}, isSelected: ${isSelected}`
-  );
-  const currentTitle = node.text;
-
-  if (isSelected) {
-    // Store the current title as the previous title before renaming
-    const previousTitle = currentTitle;
-    setFolderTitlePrev({ [node.id]: previousTitle });
-
-    const newTitle = `NewNameHere [${previousTitle}]`;
-    return newTitle;
-  } else {
-    // Restore the previous title when the node is deselected
-    const previousTitle = getFolderTitlePrev()[node.id];
-    return previousTitle || currentTitle;
-  }
-}
 
 export function jsTreeSetup1Initial(bookmarkData) {
   $("#bookmarkTree").jstree({
@@ -61,12 +42,11 @@ export function jsTreeSetup2Populate(bookmarkData) {
   jsTreeInstance.refresh();
 }
 
-let eventHandlersAttached = false;
+let localPreviousTitles = {};
 
 export function jsTreeSetup3EventHandlers() {
   const jsTreeInstance = $("#bookmarkTree").jstree(true);
 
-  // Detach existing handlers to prevent duplicates
   $("#bookmarkTree")
     .off("select_node.jstree")
     .on("select_node.jstree", function (e, data) {
@@ -74,20 +54,19 @@ export function jsTreeSetup3EventHandlers() {
       e.preventDefault();
       const selectedNode = data.node;
 
-      // Get the previously selected node
-      const previousSelectedNode = getPreviousSelectedNode();
+      console.log("Select node event triggered for node:", selectedNode);
 
-      // Check if the selected node is different from the previously selected node
-      if (
-        !previousSelectedNode ||
-        previousSelectedNode.id !== selectedNode.id
-      ) {
-        const updatedText = handleSelectionChange(selectedNode, true);
-        jsTreeInstance.set_text(selectedNode, updatedText);
-
-        // Update the previous selected node
-        setPreviousSelectedNode(selectedNode);
+      if (!localPreviousTitles[selectedNode.id]) {
+        localPreviousTitles[selectedNode.id] = selectedNode.text;
+        console.log(
+          "Setting local previous title for node:",
+          selectedNode.id,
+          selectedNode.text
+        );
       }
+
+      const updatedText = `NewNameHere [${selectedNode.text}]`;
+      jsTreeInstance.set_text(selectedNode, updatedText);
     });
 
   $("#bookmarkTree")
@@ -96,16 +75,37 @@ export function jsTreeSetup3EventHandlers() {
       e.stopPropagation();
       e.preventDefault();
       const deselectedNode = data.node;
-      const updatedText = handleSelectionChange(deselectedNode, false);
-      jsTreeInstance.set_text(deselectedNode, updatedText);
 
-      // Clear the previous selected node if it is the deselected node
-      const previousSelectedNode = getPreviousSelectedNode();
-      if (
-        previousSelectedNode &&
-        previousSelectedNode.id === deselectedNode.id
-      ) {
-        setPreviousSelectedNode(null);
+      console.log("Deselect node event triggered for node:", deselectedNode);
+
+      const previousTitle = localPreviousTitles[deselectedNode.id];
+      if (previousTitle) {
+        jsTreeInstance.set_text(deselectedNode, previousTitle);
+        console.log(
+          "Restoring local previous title for node:",
+          deselectedNode.id,
+          previousTitle
+        );
       }
     });
+}
+
+function handleSelectionChange(node, isSelected) {
+  console.log(
+    `🔍 handleSelectionChange called for node: ${node.text}, isSelected: ${isSelected}`
+  );
+  const currentTitle = node.text;
+
+  if (isSelected) {
+    // Store the current title as the previous title before renaming
+    const previousTitle = currentTitle;
+    setFolderTitlePrev({ [node.id]: previousTitle });
+
+    const newTitle = `NewNameHere [${previousTitle}]`;
+    return newTitle;
+  } else {
+    // Restore the previous title when the node is deselected
+    const previousTitle = getFolderTitlePrev()[node.id];
+    return previousTitle || currentTitle;
+  }
 }
