@@ -1,4 +1,4 @@
-import { formatJsTreeNode } from "./mod2aodmSetup.js"; // Import the moved functions
+// import { formatJsTreeNode } from "./mod2aodmSetup.js"; // Import the moved functions
 
 // // Formatting nodes for jsTree, ensuring all necessary properties are set for the AODM
 // export function formatJsTreeNode(node) {
