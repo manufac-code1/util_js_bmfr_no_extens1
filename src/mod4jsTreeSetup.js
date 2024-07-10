@@ -10,7 +10,26 @@ import { folderRenameTest1 } from "./mod5FolderRenamer.js";
 
 let jsTreeInstance;
 let isRenaming = false;
-let localPreviousTitles = {};
+
+// Function to prepare the bmarksArrJSTree1 array based on bmarksMainAO
+export function prepareJSTreeNodes(bmarksMainAO, pathToTestNode) {
+  let bmarksArrJSTree1 = bmarksMainAO.map((bmarkNode) => {
+    if (bmarkNode.id === "1") {
+      return { ...bmarkNode, state: { opened: BookmarksBarOpen } };
+    } else if (bmarkNode.id === "2") {
+      return { ...bmarkNode, state: { opened: OtherBookmarksOpen } };
+    } else if (bmarkNode.id === "3") {
+      return { ...bmarkNode, state: { opened: MobileBookmarksOpen } };
+    }
+    return bmarkNode;
+  });
+
+  if (RenamingTestingFolderOpen && pathToTestNode) {
+    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
+  }
+
+  return bmarksArrJSTree1;
+}
 
 export function jsTreeSetup(bookmarkData) {
   console.log("Starting jsTree setup and populate");

@@ -33,6 +33,7 @@ import {
 } from "./mod3aodmManage.js";
 
 import {
+  prepareJSTreeNodes,
   jsTreeSetup,
   jsTreeSetup1Initial,
   jsTreeSetup2Populate,
@@ -78,15 +79,15 @@ async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   jsTreeSetup(bmarksArrJSTree1); // Ensure jsTree is set up with the processed data
 }
 
-// Define loadAODM_old function
-function loadAODM() {
-  fetch("data/chrome_bookmarks_all.json")
-    .then((response) => response.json())
-    .then((data) => {
-      initializeAODM(data.children);
-    })
-    .catch((error) => console.error("Error fetching JSON data:", error));
-}
+// Define loadAODM function
+// function loadAODM() {
+//   fetch("data/chrome_bookmarks_all.json")
+//     .then((response) => response.json())
+//     .then((data) => {
+//       initializeAODM(data.children);
+//     })
+//     .catch((error) => console.error("Error fetching JSON data:", error));
+// }
 
 async function loadAndProcessBookmarkData() {
   try {
@@ -112,25 +113,25 @@ async function loadAndProcessBookmarkData() {
   }
 }
 
-// Function to prepare the bmarksArrJSTree1 array based on bmarksMainAO
-function prepareJSTreeNodes(bmarksMainAO, pathToTestNode) {
-  let bmarksArrJSTree1 = bmarksMainAO.map((bmarkNode) => {
-    if (bmarkNode.id === "1") {
-      return { ...bmarkNode, state: { opened: BookmarksBarOpen } };
-    } else if (bmarkNode.id === "2") {
-      return { ...bmarkNode, state: { opened: OtherBookmarksOpen } };
-    } else if (bmarkNode.id === "3") {
-      return { ...bmarkNode, state: { opened: MobileBookmarksOpen } };
-    }
-    return bmarkNode;
-  });
+// // Function to prepare the bmarksArrJSTree1 array based on bmarksMainAO
+// function prepareJSTreeNodes(bmarksMainAO, pathToTestNode) {
+//   let bmarksArrJSTree1 = bmarksMainAO.map((bmarkNode) => {
+//     if (bmarkNode.id === "1") {
+//       return { ...bmarkNode, state: { opened: BookmarksBarOpen } };
+//     } else if (bmarkNode.id === "2") {
+//       return { ...bmarkNode, state: { opened: OtherBookmarksOpen } };
+//     } else if (bmarkNode.id === "3") {
+//       return { ...bmarkNode, state: { opened: MobileBookmarksOpen } };
+//     }
+//     return bmarkNode;
+//   });
 
-  if (RenamingTestingFolderOpen && pathToTestNode) {
-    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
-  }
+//   if (RenamingTestingFolderOpen && pathToTestNode) {
+//     bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
+//   }
 
-  return bmarksArrJSTree1;
-}
+//   return bmarksArrJSTree1;
+// }
 
 // Updated initializeJsTree function
 function initializeJsTree() {
@@ -167,5 +168,5 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Call the new function to load and process bookmark data
   await loadAndProcessBookmarkData();
-  loadAODM(); // Ensure this is being called
+  // loadAODM(); // Ensure this is being called
 });
