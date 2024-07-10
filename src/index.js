@@ -15,9 +15,9 @@ import {
   clearFolderTitlePrev,
 } from "./mod8State.js";
 import {
-  bmarksProc1Parse,
-  bmarksProc2Clean,
-  bmarksProc3Rename,
+  bmarksProc2Parse,
+  bmarksProc3Clean,
+  bmarksProc4Rename,
 } from "./mod2aodmSetup.js"; // Import the moved functions
 import {
   jsTreeSetup,
@@ -81,9 +81,9 @@ async function loadAndProcessBookmarkData() {
     const response = await fetch("data/chrome_bookmarks_all.json");
     const data = await response.json();
 
-    const bmarksArrP1Parsed = bmarksProc1Parse(data.children);
-    const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
-    const bmarksArrP3Renamed = bmarksProc3Rename(bmarksArrP2Cleaned);
+    const bmarksArrP2Parsed = bmarksProc2Parse(data.children);
+    const bmarksArrP3Cleaned = bmarksProc3Clean(bmarksArrP2Parsed);
+    const bmarksArrP4Renamed = bmarksProc4Rename(bmarksArrP3Cleaned);
 
     const bmarksObjFromJSON = [];
     const bmarksDictInitial = {};
@@ -91,7 +91,7 @@ async function loadAndProcessBookmarkData() {
     const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
       bmarksObjFromJSON,
       bmarksDictInitial,
-      bmarksArrP3Renamed
+      bmarksArrP4Renamed
     );
 
     await initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM);
@@ -109,9 +109,9 @@ function initializeJsTree() {
 
 // Define initializeAODM function
 function initializeAODM(data) {
-  const bmarksArrP1Parsed = bmarksProc1Parse(data);
-  const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
-  const bmarksArrP3Renamed = bmarksProc3Rename(bmarksArrP2Cleaned);
+  const bmarksArrP1Parsed = bmarksProc1FormatForJsTree(data);
+  const bmarksArrP2Cleaned = bmarksProc2Parse(bmarksArrP1Parsed);
+  const bmarksArrP3Renamed = bmarksProc3Clean(bmarksArrP2Cleaned);
 
   const bmarksObjFromJSON = [];
   const bmarksDictInitial = {};

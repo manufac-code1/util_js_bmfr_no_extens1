@@ -1,9 +1,15 @@
-import { formatJsTreeNode } from "./mod2aodmSetup.js";
+import { bmarksProc1FormatForJsTree } from "./mod2aodmSetup.js";
+import { jsTreeInstance } from "./mod4jsTreeSetup.js";
+
 import {
-  jsTreeInstance,
-  getIsRenaming,
-  setIsRenaming,
-} from "./mod4jsTreeSetup.js"; // Import getter and setter
+  getFolderTitlePrev,
+  setFolderTitlePrev,
+  clearFolderTitlePrev,
+  setPreviousSelectedNode,
+  getPreviousSelectedNode,
+} from "./mod8State.js";
+
+let isRenaming = false;
 
 export function jsTreeSetup3EventHandlers() {
   if (!jsTreeInstance) {
@@ -33,11 +39,11 @@ export function jsTreeSetup3EventHandlers() {
 
       console.log("Select node event triggered for node:", selectedNode);
 
-      if (getIsRenaming()) {
-        console.log("Renaming in progress, skipping...");
-        return;
-      }
-      setIsRenaming(true);
+      // if (getIsRenaming()) {
+      //   console.log("Renaming in progress, skipping...");
+      //   return;
+      // }
+      // setIsRenaming(true);
 
       const previousTitles = getFolderTitlePrev();
       console.log("Getting previous titles:", previousTitles);
@@ -59,7 +65,7 @@ export function jsTreeSetup3EventHandlers() {
       setPreviousSelectedNode(selectedNode);
       console.log("Setting previous selected node:", selectedNode);
 
-      setIsRenaming(false);
+      // setIsRenaming(false);
     });
 
   $("#bookmarkTree")

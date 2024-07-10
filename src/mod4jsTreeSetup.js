@@ -11,7 +11,7 @@ import { markNodesAsOpened } from "./mod3aodmManage.js"; // If this function is 
 import { jsTreeSetup3EventHandlers } from "./mod5jsTreeManage.js"; // Ensure correct import for jsTreeSetup3EventHandlers
 
 let jsTreeInstance;
-let isRenaming = false;
+// let isRenaming = false;
 let localPreviousTitles = {};
 
 export function prepareJSTreeNodes(bmarksMainAO, pathToTestNode) {
@@ -72,4 +72,4 @@ export function jsTreeSetup(bookmarkData) {
   console.log("jsTree setup and populate complete");
 }
 
-export { jsTreeInstance, isRenaming };
+export { jsTreeInstance };

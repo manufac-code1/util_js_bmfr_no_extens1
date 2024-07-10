@@ -1,12 +1,12 @@
 // Formatting nodes for jsTree, ensuring all necessary properties are set for the AODM
-export function formatJsTreeNode(node) {
+export function bmarksProc1FormatForJsTree(node) {
   const defaultState = { opened: false, selected: false };
   const formattedNode = {
     id: node.id,
     text: node.title || "Untitled", // Use a default value if node.title is not defined
     children: node.children
       .filter((child) => typeof child === "object" && child !== null)
-      .map((child) => formatJsTreeNode(child)),
+      .map((child) => bmarksProc1FormatForJsTree(child)),
     state: node.state || defaultState,
     a_attr: node.url ? { href: node.url } : undefined,
     type: node.url ? "file" : "default",
@@ -15,9 +15,9 @@ export function formatJsTreeNode(node) {
 }
 
 // Parsing the initial data structure into a usable format, preparing it for integration into the AODM
-export function bmarksProc1Parse(data) {
+export function bmarksProc2Parse(data) {
   return data.map((node) => {
-    const children = node.children ? bmarksProc1Parse(node.children) : [];
+    const children = node.children ? bmarksProc2Parse(node.children) : [];
     return {
       id: node.id,
       title: node.text || null,
@@ -28,7 +28,7 @@ export function bmarksProc1Parse(data) {
 }
 
 // Cleaning the parsed data to ensure it has the correct properties for the AODM
-export function bmarksProc2Clean(data) {
+export function bmarksProc3Clean(data) {
   return data.map((node) => {
     let title;
 
@@ -43,13 +43,13 @@ export function bmarksProc2Clean(data) {
       ...node,
       title: title,
       state: node.state || { opened: false },
-      children: node.children ? bmarksProc2Clean(node.children) : [],
+      children: node.children ? bmarksProc3Clean(node.children) : [],
     };
   });
 }
 
 // Applying post-parsing renaming to nodes for consistency in the AODM
-export function bmarksProc3Rename(sst) {
+export function bmarksProc4Rename(sst) {
   sst.forEach((node) => {
     // Standardize the name for the `chrome://bookmarks/` bookmark
     if (node.url === "chrome://bookmarks/") {
@@ -58,7 +58,7 @@ export function bmarksProc3Rename(sst) {
 
     // Apply other renaming rules as needed
     if (node.children) {
-      bmarksProc3Rename(node.children);
+      bmarksProc4Rename(node.children);
     }
   });
   return sst;

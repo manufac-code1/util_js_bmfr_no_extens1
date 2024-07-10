@@ -1,4 +1,4 @@
-import { formatJsTreeNode } from "./mod2aodmSetup.js";
+import { bmarksProc1FormatForJsTree } from "./mod2aodmSetup.js";
 
 // Getting child nodes of a given parent ID, for integration into the AODM
 export function getChildNodes(data, parentId) {
@@ -26,7 +26,9 @@ export function updateArrayAndDict(array, dict, newBookmarkData) {
   array.length = 0; // Clear the array
   for (let key in dict) delete dict[key]; // Clear the dictionary
 
-  const bmarksMainAO = newBookmarkData.map((node) => formatJsTreeNode(node));
+  const bmarksMainAO = newBookmarkData.map((node) =>
+    bmarksProc1FormatForJsTree(node)
+  );
   array.push(...bmarksMainAO); // Update the array with new data
   const bmarksMainDM = generateDictionaryFromArray(bmarksMainAO); // Generate the dictionary from the updated array
 
