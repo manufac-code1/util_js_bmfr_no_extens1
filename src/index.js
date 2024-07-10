@@ -15,6 +15,13 @@ import {
   setFolderTitlePrev,
   getFolderTitlePrev,
 } from "./mod8State.js";
+
+import {
+  bmarksProc1Parse,
+  bmarksProc2Clean,
+  bmarksProc3Rename,
+} from "./mod2aodmSetup.js";
+
 import {
   getChildNodes,
   generateDictionaryFromArray,
@@ -23,14 +30,10 @@ import {
   setNodeState,
   findPathToNode,
   setAODMData,
-} from "./mod9Index_offload.js"; // Import the remaining functions
+} from "./mod3aodmManage.js";
+
 import {
-  formatJsTreeNode,
-  bmarksProc1Parse,
-  bmarksProc2Clean,
-  bmarksProc3Rename,
-} from "./mod2aodmSetup.js"; // Import the moved functions
-import {
+  jsTreeSetup,
   jsTreeSetup1Initial,
   jsTreeSetup2Populate,
   jsTreeSetup3EventHandlers,
@@ -43,13 +46,13 @@ const MobileBookmarksOpen = false;
 const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
-function jsTreeSetup(bookmarkData) {
-  console.log("Starting jsTree setup and populate");
-  jsTreeSetup1Initial(bookmarkData);
-  jsTreeSetup2Populate(bookmarkData);
-  jsTreeSetup3EventHandlers();
-  console.log("jsTree setup and populate complete");
-}
+// function jsTreeSetup(bookmarkData) {
+//   console.log("Starting jsTree setup and populate");
+//   jsTreeSetup1Initial(bookmarkData);
+//   jsTreeSetup2Populate(bookmarkData);
+//   jsTreeSetup3EventHandlers();
+//   console.log("jsTree setup and populate complete");
+// }
 
 async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   bmarksDictInitial = bmarksMainDM; // Assuming bmarksDictInitial is a global variable

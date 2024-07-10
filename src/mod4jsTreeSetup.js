@@ -12,6 +12,14 @@ let jsTreeInstance;
 let isRenaming = false;
 let localPreviousTitles = {};
 
+export function jsTreeSetup(bookmarkData) {
+  console.log("Starting jsTree setup and populate");
+  jsTreeSetup1Initial(bookmarkData);
+  jsTreeSetup2Populate(bookmarkData);
+  jsTreeSetup3EventHandlers();
+  console.log("jsTree setup and populate complete");
+}
+
 export function jsTreeSetup1Initial(bookmarkData) {
   $("#bookmarkTree").jstree({
     core: {
