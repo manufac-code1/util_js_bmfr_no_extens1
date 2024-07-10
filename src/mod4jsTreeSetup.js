@@ -10,6 +10,7 @@ import { folderRenameTest1 } from "./mod5FolderRenamer.js";
 
 let jsTreeInstance;
 let isRenaming = false;
+let localPreviousTitles = {};
 
 export function jsTreeSetup1Initial(bookmarkData) {
   $("#bookmarkTree").jstree({
@@ -42,10 +43,21 @@ export function jsTreeSetup2Populate(bookmarkData) {
   jsTreeInstance.refresh();
 }
 
-let localPreviousTitles = {};
-
 export function jsTreeSetup3EventHandlers() {
-  const jsTreeInstance = $("#bookmarkTree").jstree(true);
+  jsTreeInstance = $("#bookmarkTree").jstree(true);
+
+  // Debounce function to prevent rapid successive calls
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
 
   $("#bookmarkTree")
     .off("select_node.jstree")
@@ -56,17 +68,33 @@ export function jsTreeSetup3EventHandlers() {
 
       console.log("Select node event triggered for node:", selectedNode);
 
-      if (!localPreviousTitles[selectedNode.id]) {
-        localPreviousTitles[selectedNode.id] = selectedNode.text;
-        console.log(
-          "Setting local previous title for node:",
-          selectedNode.id,
-          selectedNode.text
-        );
+      if (isRenaming) {
+        console.log("Renaming in progress, skipping...");
+        return;
+      }
+      isRenaming = true;
+
+      const previousTitles = getFolderTitlePrev();
+      console.log("Getting previous titles:", previousTitles);
+
+      if (!previousTitles[selectedNode.id]) {
+        setFolderTitlePrev({
+          ...previousTitles,
+          [selectedNode.id]: selectedNode.text,
+        });
+        console.log("Setting previous title for node:", {
+          ...previousTitles,
+          [selectedNode.id]: selectedNode.text,
+        });
       }
 
-      const updatedText = `NewNameHere [${selectedNode.text}]`;
+      const updatedText = handleSelectionChange(selectedNode, true);
       jsTreeInstance.set_text(selectedNode, updatedText);
+
+      setPreviousSelectedNode(selectedNode);
+      console.log("Setting previous selected node:", selectedNode);
+
+      isRenaming = false;
     });
 
   $("#bookmarkTree")
@@ -78,14 +106,28 @@ export function jsTreeSetup3EventHandlers() {
 
       console.log("Deselect node event triggered for node:", deselectedNode);
 
-      const previousTitle = localPreviousTitles[deselectedNode.id];
+      const previousTitles = getFolderTitlePrev();
+      console.log("Getting previous titles:", previousTitles);
+
+      const previousTitle = previousTitles[deselectedNode.id];
+      console.log("Getting previous title for node:", previousTitle);
+
       if (previousTitle) {
         jsTreeInstance.set_text(deselectedNode, previousTitle);
         console.log(
-          "Restoring local previous title for node:",
-          deselectedNode.id,
-          previousTitle
+          `Set text for node ${deselectedNode.id} to previous title: ${previousTitle}`
         );
+        clearFolderTitlePrev(deselectedNode.id);
+        console.log("Clearing previous title for node:", deselectedNode.id);
+      }
+
+      const previousSelectedNode = getPreviousSelectedNode();
+      if (
+        previousSelectedNode &&
+        previousSelectedNode.id === deselectedNode.id
+      ) {
+        setPreviousSelectedNode(null);
+        console.log("Clearing previous selected node:", deselectedNode.id);
       }
     });
 }

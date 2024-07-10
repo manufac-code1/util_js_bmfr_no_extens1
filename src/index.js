@@ -41,60 +41,6 @@ const MobileBookmarksOpen = false;
 const RenamingTestingFolderOpen = false;
 const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
 
-// 3. RENAME NODES POST-PARSING
-// Setting up and populating the jsTree with the formatted bookmark data, using the AODM
-
-// function jsTreeSetup1Initial(bookmarkData) {
-//   console.log("Initializing jsTree with data:", bookmarkData);
-//   $("#bookmarkTree").jstree({
-//     core: {
-//       data: bookmarkData,
-//       check_callback: true,
-//       themes: {
-//         name: "default-dark",
-//         dots: true,
-//         icons: true,
-//         url: "libs/themes/default-dark/style.css",
-//       },
-//     },
-//     types: {
-//       default: { icon: "jstree-folder" },
-//       file: { icon: "jstree-file" },
-//     },
-//     state: { key: "bookmarkTreeState" },
-//     plugins: ["state", "types", "search", "lazy"],
-//   });
-//   console.log("jsTree initialized");
-// }
-
-// function jsTreeSetup2Populate(bookmarkData) {
-//   console.log("Populating jsTree with data:", bookmarkData);
-//   const jsTreeInstance = $("#bookmarkTree").jstree(true);
-//   jsTreeInstance.settings.core.data = bookmarkData;
-//   jsTreeInstance.refresh();
-//   console.log("jsTree populated");
-// }
-
-// function jsTreeSetup3EventHandlers() {
-//   console.log("Setting up event handlers");
-//   const jsTreeInstance = $("#bookmarkTree").jstree(true);
-
-//   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
-//     const selectedNode = data.node;
-//     console.log("Node selected:", selectedNode);
-//     const updatedText = folderRenameTest1(selectedNode, true);
-//     jsTreeInstance.set_text(selectedNode, updatedText);
-//   });
-
-//   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
-//     const deselectedNode = data.node;
-//     console.log("Node deselected:", deselectedNode);
-//     const updatedText = folderRenameTest1(deselectedNode, false);
-//     jsTreeInstance.set_text(deselectedNode, updatedText);
-//   });
-//   console.log("Event handlers set up");
-// }
-
 function jsTreeSetup(bookmarkData) {
   console.log("Starting jsTree setup and populate");
   jsTreeSetup1Initial(bookmarkData);
@@ -102,42 +48,6 @@ function jsTreeSetup(bookmarkData) {
   jsTreeSetup3EventHandlers();
   console.log("jsTree setup and populate complete");
 }
-
-// function jsTreeSetupAndPopulate(bookmarkData) {
-//   $("#bookmarkTree").jstree({
-//     core: {
-//       data: bookmarkData,
-//       check_callback: true,
-//       themes: {
-//         name: "default-dark",
-//         dots: true,
-//         icons: true,
-//         url: "libs/themes/default-dark/style.css",
-//       },
-//     },
-//     types: {
-//       default: { icon: "jstree-folder" },
-//       file: { icon: "jstree-file" },
-//     },
-//     state: { key: "bookmarkTreeState" },
-//     plugins: ["state", "types", "search", "lazy"],
-//   });
-
-//   const jsTreeInstance = $("#bookmarkTree").jstree(true);
-
-//   // Attach event handlers for node selection and deselection
-//   $("#bookmarkTree").on("select_node.jstree", function (e, data) {
-//     const selectedNode = data.node;
-//     const updatedText = addEmojiToTitle(selectedNode.text, true);
-//     jsTreeInstance.set_text(selectedNode, updatedText);
-//   });
-
-//   $("#bookmarkTree").on("deselect_node.jstree", function (e, data) {
-//     const deselectedNode = data.node;
-//     const updatedText = addEmojiToTitle(deselectedNode.text, false);
-//     jsTreeInstance.set_text(deselectedNode, updatedText);
-//   });
-// }
 
 async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   bmarksDictInitial = bmarksMainDM; // Assuming bmarksDictInitial is a global variable
@@ -164,11 +74,11 @@ async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
 }
 
 // Define loadAODM_old function
-function loadAODM_old() {
+function loadAODM() {
   fetch("data/chrome_bookmarks_all.json")
     .then((response) => response.json())
     .then((data) => {
-      initializeAODM_old(data.children);
+      initializeAODM(data.children);
     })
     .catch((error) => console.error("Error fetching JSON data:", error));
 }
@@ -225,7 +135,7 @@ function initializeJsTree() {
 }
 
 // Define initializeAODM_old function
-function initializeAODM_old(data) {
+function initializeAODM(data) {
   const bmarksArrP1Parsed = bmarksProc1Parse(data);
   const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
   const bmarksArrP3Renamed = bmarksProc3Rename(bmarksArrP2Cleaned);
@@ -252,5 +162,5 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Call the new function to load and process bookmark data
   await loadAndProcessBookmarkData();
-  loadAODM_old(); // Ensure this is being called
+  loadAODM(); // Ensure this is being called
 });
