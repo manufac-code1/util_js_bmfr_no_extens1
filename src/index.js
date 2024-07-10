@@ -16,10 +16,6 @@ import {
   getFolderTitlePrev,
 } from "./mod8State.js";
 import {
-  formatJsTreeNode,
-  bmarksProc1Parse,
-  bmarksProc2Clean,
-  bmarksProc3Rename,
   getChildNodes,
   generateDictionaryFromArray,
   updateArrayAndDict,
@@ -27,7 +23,13 @@ import {
   setNodeState,
   findPathToNode,
   setAODMData,
-} from "./mod9Index_offload.js"; // Import the functions
+} from "./mod9Index_offload.js"; // Import the remaining functions
+import {
+  formatJsTreeNode,
+  bmarksProc1Parse,
+  bmarksProc2Clean,
+  bmarksProc3Rename,
+} from "./mod2aodmSetup.js"; // Import the moved functions
 import {
   jsTreeSetup1Initial,
   jsTreeSetup2Populate,
@@ -134,7 +136,7 @@ function initializeJsTree() {
   jsTreeSetup(bmarksArrJSTree1);
 }
 
-// Define initializeAODM_old function
+// Define initializeAODM function
 function initializeAODM(data) {
   const bmarksArrP1Parsed = bmarksProc1Parse(data);
   const bmarksArrP2Cleaned = bmarksProc2Clean(bmarksArrP1Parsed);
