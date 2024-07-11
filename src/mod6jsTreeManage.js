@@ -1,5 +1,5 @@
-import { bmarksProc1FormatForJsTree } from "./mod2aodmSetup.js";
-import { jsTreeInstance } from "./mod4jsTreeSetup.js";
+import { bmarksProc1FormatForJsTree } from "./mod3aodmSetup.js";
+import { jsTreeInstance } from "./mod5jsTreeSetup.js";
 
 import {
   getFolderTitlePrev,
@@ -7,11 +7,11 @@ import {
   clearFolderTitlePrev,
   setPreviousSelectedNode,
   getPreviousSelectedNode,
-} from "./mod8State.js";
+} from "./mod2State.js";
 
 let isRenaming = false;
 
-export function jsTreeSetup3EventHandlers() {
+export function jsTreeSetup4EventHandlers() {
   if (!jsTreeInstance) {
     console.error("jsTreeInstance is not defined");
     return;

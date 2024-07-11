@@ -3,7 +3,7 @@ import {
   getPreviousSelectedNode,
   setFolderTitlePrev,
   getFolderTitlePrev,
-} from "./mod8State.js";
+} from "./mod2State.js";
 
 // export default function addEmojiToTitle(title, isSelected) {
 //   const emoji = "🟢";

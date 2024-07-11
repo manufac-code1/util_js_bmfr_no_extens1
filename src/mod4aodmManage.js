@@ -1,4 +1,4 @@
-import { bmarksProc1FormatForJsTree } from "./mod2aodmSetup.js";
+import { bmarksProc1FormatForJsTree } from "./mod3aodmSetup.js";
 
 // Getting child nodes of a given parent ID, for integration into the AODM
 export function getChildNodes(data, parentId) {

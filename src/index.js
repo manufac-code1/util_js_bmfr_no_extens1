@@ -1,134 +1,36 @@
-// 1. CONFIGURATION VARIABLES
 let currentSelectedNode = null; // Global variable to store selected node ID
-let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
 
-// let jsTreeInstance;
-
-// Import statements
 import "./index.css";
-import { folderRenameTest1 } from "./mod6FolderRenamer.js";
+import { folderRenameTest1 } from "./mod7FolderRenamer.js";
 import {
   setPreviousSelectedNode,
   getPreviousSelectedNode,
   setFolderTitlePrev,
   getFolderTitlePrev,
   clearFolderTitlePrev,
-} from "./mod8State.js";
+} from "./mod2State.js";
 import {
+  loadAndProcessBookmarkData,
   bmarksProc2Parse,
   bmarksProc3Clean,
   bmarksProc4Rename,
-} from "./mod2aodmSetup.js"; // Import the moved functions
+} from "./mod3aodmSetup.js"; // Import the moved functions and initializeAODMWithProcessedData
 import {
   jsTreeSetup,
   jsTreeSetup1Initial,
   jsTreeSetup2Populate,
   prepareJSTreeNodes,
-} from "./mod4jsTreeSetup.js"; // Import setup functions
+} from "./mod5jsTreeSetup.js"; // Import setup functions
 import {
-  jsTreeSetup3EventHandlers,
+  jsTreeSetup4EventHandlers,
   handleSelectionChange,
-} from "./mod5jsTreeManage.js"; // Import management functions
+} from "./mod6jsTreeManage.js"; // Import management functions
 import {
   updateArrayAndDict,
   findPathToNode,
   setAODMData,
-} from "./mod3aodmManage.js";
+} from "./mod4aodmManage.js";
 
-// Configuration variables to control the state of various parts of the bookmarks tree
-const BookmarksBarOpen = false;
-const OtherBookmarksOpen = false;
-const MobileBookmarksOpen = false;
-const RenamingTestingFolderOpen = false;
-const renamingTestFolderId = "33645"; // Replace with actual folder ID for testing
-
-async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
-  bmarksDictInitial = bmarksMainDM; // Assuming bmarksDictInitial is a global variable
-
-  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-
-  let bmarksArrJSTree1 = bmarksMainAO.map((node) => {
-    if (node.id === "1") {
-      return { ...node, state: { opened: BookmarksBarOpen } };
-    } else if (node.id === "2") {
-      return { ...node, state: { opened: OtherBookmarksOpen } };
-    } else if (node.id === "3") {
-      return { ...node, state: { opened: MobileBookmarksOpen } };
-    }
-    return node;
-  });
-
-  if (RenamingTestingFolderOpen && pathToTestNode) {
-    bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
-  }
-
-  setAODMData(bmarksDictInitial); // Ensure this is being called correctly
-  jsTreeSetup(bmarksArrJSTree1); // Ensure jsTree is set up with the processed data
-}
-
-// Define loadAODM function
-// function loadAODM() {
-//   fetch("data/chrome_bookmarks_all.json")
-//     .then((response) => response.json())
-//     .then((data) => {
-//       initializeAODM(data.children);
-//     })
-//     .catch((error) => console.error("Error fetching JSON data:", error));
-// }
-
-async function loadAndProcessBookmarkData() {
-  try {
-    const response = await fetch("data/chrome_bookmarks_all.json");
-    const data = await response.json();
-
-    const bmarksArrP2Parsed = bmarksProc2Parse(data.children);
-    const bmarksArrP3Cleaned = bmarksProc3Clean(bmarksArrP2Parsed);
-    const bmarksArrP4Renamed = bmarksProc4Rename(bmarksArrP3Cleaned);
-
-    const bmarksObjFromJSON = [];
-    const bmarksDictInitial = {};
-
-    const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
-      bmarksObjFromJSON,
-      bmarksDictInitial,
-      bmarksArrP4Renamed
-    );
-
-    await initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM);
-  } catch (error) {
-    console.error("Error fetching or processing JSON data:", error);
-  }
-}
-
-// Updated initializeJsTree function
-function initializeJsTree() {
-  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-  const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
-  jsTreeSetup(bmarksArrJSTree1);
-}
-
-// Define initializeAODM function
-function initializeAODM(data) {
-  const bmarksArrP1Parsed = bmarksProc1FormatForJsTree(data);
-  const bmarksArrP2Cleaned = bmarksProc2Parse(bmarksArrP1Parsed);
-  const bmarksArrP3Renamed = bmarksProc3Clean(bmarksArrP2Cleaned);
-
-  const bmarksObjFromJSON = [];
-  const bmarksDictInitial = {};
-
-  const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
-    bmarksObjFromJSON,
-    bmarksDictInitial,
-    bmarksArrP3Renamed
-  );
-
-  const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-  const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
-
-  jsTreeSetup(bmarksArrJSTree1);
-}
-
-// 5. DOMContentLoaded EVENT HANDLER (Main Processing Loop)
 document.addEventListener("DOMContentLoaded", async function () {
   // Initiate DataPath2
   // manageAODM();
