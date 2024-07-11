@@ -10,9 +10,7 @@ let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
 
 async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   bmarksDictInitial = bmarksMainDM; // Use global variable
-
-  // Log the AODM data for inspection
-  console.log("AODM (bmarksMainAO):", bmarksMainAO);
+  // console.log("AODM (bmarksMainAO):", bmarksMainAO);
   // console.log("AODM Dictionary Map (bmarksMainDM):", bmarksMainDM);
 
   // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId); // Find the path to the specific node
@@ -22,24 +20,21 @@ async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
 }
 
 // Define initializeAODM function
-function initializeAODM(data) {
-  const bmarksArrP1Parsed = bmarksProc1FormatForJsTree(data);
-  const bmarksArrP2Cleaned = bmarksProc2Parse(bmarksArrP1Parsed);
-  const bmarksArrP3Renamed = bmarksProc3Clean(bmarksArrP2Cleaned);
-
-  const bmarksObjFromJSON = [];
-
-  const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
-    bmarksObjFromJSON,
-    bmarksDictInitial, // Use global variable
-    bmarksArrP3Renamed
-  );
-
-  // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-  // const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
-
-  jsTreeSetup(bmarksArrJSTree1);
-}
+// function initializeAODM(data) {
+//   // const bmarksArrP1InitFormat = bmarksProc1FormatForJsTree(data);
+//   // const bmarksArrP2Parsed = bmarksProc2Parse(bmarksArrP1InitFormat);
+//   // const bmarksArrP3Cleaned = bmarksProc3Clean(bmarksArrP2Parsed);
+//   // const bmarksArrP4Renamed = bmarksProc4Rename(bmarksArrP3Cleaned);
+//   // const bmarksArrayInitialEmpty = [];
+//   // const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
+//   //   bmarksArrayInitialEmpty,
+//   //   bmarksDictInitial, // Use global variable
+//   //   bmarksArrP3Renamed
+//   // );
+//   // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
+//   // const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
+//   // jsTreeSetup(bmarksArrJSTree1);
+// }
 
 export async function loadAndProcessBookmarkData() {
   try {
@@ -50,10 +45,10 @@ export async function loadAndProcessBookmarkData() {
     const bmarksArrP3Cleaned = bmarksProc3Clean(bmarksArrP2Parsed);
     const bmarksArrP4Renamed = bmarksProc4Rename(bmarksArrP3Cleaned);
 
-    const bmarksObjFromJSON = [];
+    const bmarksArrayInitialEmpty = [];
 
     const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
-      bmarksObjFromJSON,
+      bmarksArrayInitialEmpty,
       bmarksDictInitial, // Use global variable
       bmarksArrP4Renamed
     );
@@ -66,19 +61,18 @@ export async function loadAndProcessBookmarkData() {
 
 // Formatting nodes for jsTree, ensuring all necessary properties are set for the AODM
 export function bmarksProc1FormatForJsTree(node) {
-  const defaultState = { opened: false, selected: false };
+  const defaultState = { opened: false, selected: false, checked: false };
   const formattedNode = {
     id: node.id,
     text: node.title || "Untitled", // Use a default value if node.title is not defined
+    textPrev: node.title || "Untitled",
+    textCand: "", // Add textCand with an initial empty string
     children: node.children
       .filter((child) => typeof child === "object" && child !== null)
       .map((child) => bmarksProc1FormatForJsTree(child)),
     state: node.state || defaultState,
     a_attr: node.url ? { href: node.url } : undefined,
     type: node.url ? "file" : "default",
-    isSelected: false,
-    isSelectedPrev: false,
-    textPrev: node.title || "Untitled",
   };
   return formattedNode;
 }
@@ -92,9 +86,9 @@ export function bmarksProc2Parse(data) {
       title: node.text || null,
       url: node.data ? node.data.url : undefined,
       children: children,
-      isSelected: false,
-      isSelectedPrev: false,
       textPrev: node.text || null,
+      textCand: "", // Add textCand with an initial empty string
+      state: { opened: false, selected: false, checked: false },
     };
   });
 }
@@ -114,11 +108,13 @@ export function bmarksProc3Clean(data) {
     return {
       ...node,
       title: title,
+      textPrev: node.textPrev || title,
+      textCand: "", // Add textCand with an initial empty string
       state: node.state || { opened: false },
       children: node.children ? bmarksProc3Clean(node.children) : [],
       isSelected: node.isSelected || false,
       isSelectedPrev: node.isSelectedPrev || false,
-      textPrev: node.textPrev || title,
+      isChecked: node.isChecked || false, // Include isChecked
     };
   });
 }

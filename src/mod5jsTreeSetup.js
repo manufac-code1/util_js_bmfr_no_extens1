@@ -24,6 +24,15 @@ let localPreviousTitles = {};
 export function jsTreeSetup(bookmarkData) {
   console.log("Starting jsTree setup and populate");
   jsTreeSetup1Initial(bookmarkData);
+
+  const bookmarkDataBeforeFix = JSON.parse(JSON.stringify(bookmarkData));
+  console.log("🟨 Before jsTreeSetup2FixPropNames:", bookmarkDataBeforeFix);
+
+  // jsTreeSetup2FixPropNames(bookmarkData);
+
+  const bookmarkDataAfterFix = JSON.parse(JSON.stringify(bookmarkData));
+  console.log("🟧 After jsTreeSetup2FixPropNames:", bookmarkDataAfterFix);
+
   jsTreeSetup2Populate(bookmarkData);
   jsTreeSetup3InitState(bookmarkData); // Call the initial open/close state setup
   jsTreeSetup4EventHandlers();
@@ -53,6 +62,21 @@ export function jsTreeSetup1Initial(bookmarkData) {
   // Ensure no initial selection
   jsTreeInstance = $("#bookmarkTree").jstree(true);
   jsTreeInstance.deselect_all();
+}
+
+function jsTreeSetup2FixPropNames(bookmarkData) {
+  const updatedData = bookmarkData.map((node) => {
+    return {
+      ...node,
+      text: node.title, // Map 'title' to 'text' for jsTree
+      state: {
+        ...node.state,
+        selected: node.isSelected, // Map 'isSelected' to jsTree 'state.selected'
+      },
+      a_attr: node.url ? { href: node.url } : undefined, // Map 'url' to 'a_attr.href' for jsTree
+    };
+  });
+  return updatedData;
 }
 
 export function jsTreeSetup2Populate(bookmarkData) {
