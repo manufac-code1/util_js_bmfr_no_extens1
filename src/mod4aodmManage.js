@@ -1,5 +1,8 @@
 import { bmarksProc1FormatForJsTree } from "./mod3aodmSetup.js";
 
+let bmarksDictInitial = {};
+let logCounter = 0; // Counter to keep track of logged items
+
 // Getting child nodes of a given parent ID, for integration into the AODM
 export function getChildNodes(data, parentId) {
   return data.filter((node) => node.parent === parentId);
@@ -16,9 +19,22 @@ export function generateDictionaryFromArray(array) {
     if (node.children) {
       Object.assign(dict, generateDictionaryFromArray(node.children));
     }
+
+    // Log the first 10 items
+    if (logCounter < 10) {
+      console.log(`Item ${logCounter + 1}:`, node);
+      logCounter++;
+    }
   });
   dictGenerationCount++;
+  bmarksDictInitial = dict; // Assign the generated dictionary to the global variable
   return dict;
+}
+
+// Function to log first 10 items
+export function logFirst10Items(dictionary) {
+  const first10Items = Object.entries(dictionary).slice(0, 10);
+  console.log("First 10 items in the dictionary:", first10Items);
 }
 
 // Updating the array and dictionary with new bookmark data, ensuring synchronization within the AODM
