@@ -22,21 +22,19 @@ let jsTreeInstance;
 let localPreviousTitles = {};
 
 export function jsTreeSetup(bookmarkData) {
-  console.log("Starting jsTree setup and populate");
+  // console.log("Starting jsTree setup and populate");
   jsTreeSetup1Initial(bookmarkData);
 
   const bookmarkDataBeforeFix = JSON.parse(JSON.stringify(bookmarkData));
-  console.log("🟨 Before jsTreeSetup2FixPropNames:", bookmarkDataBeforeFix);
 
   // jsTreeSetup2FixPropNames(bookmarkData);
 
   const bookmarkDataAfterFix = JSON.parse(JSON.stringify(bookmarkData));
-  console.log("🟧 After jsTreeSetup2FixPropNames:", bookmarkDataAfterFix);
 
   jsTreeSetup2Populate(bookmarkData);
   jsTreeSetup3InitState(bookmarkData); // Call the initial open/close state setup
+  console.log("bookmarkData: ", bookmarkData);
   jsTreeSetup4EventHandlers();
-  console.log("jsTree setup and populate complete");
 }
 
 export function jsTreeSetup1Initial(bookmarkData) {
@@ -64,35 +62,25 @@ export function jsTreeSetup1Initial(bookmarkData) {
   jsTreeInstance.deselect_all();
 }
 
-function jsTreeSetup2FixPropNames(bookmarkData) {
-  const updatedData = bookmarkData.map((node) => {
-    return {
-      ...node,
-      text: node.title, // Map 'title' to 'text' for jsTree
-      state: {
-        ...node.state,
-        selected: node.isSelected, // Map 'isSelected' to jsTree 'state.selected'
-      },
-      a_attr: node.url ? { href: node.url } : undefined, // Map 'url' to 'a_attr.href' for jsTree
-    };
-  });
-  return updatedData;
-}
-
 export function jsTreeSetup2Populate(bookmarkData) {
   jsTreeInstance = $("#bookmarkTree").jstree(true);
   jsTreeInstance.settings.core.data = bookmarkData;
   jsTreeInstance.refresh();
 }
 
+const openStates = {
+  1: BookmarksBarOpen,
+  2: OtherBookmarksOpen,
+  3: MobileBookmarksOpen,
+};
+
 function jsTreeSetup3InitState(bookmarkData) {
   let bmarksArrJSTree1 = bookmarkData.map((bmarkNode) => {
-    if (bmarkNode.id === "1") {
-      return { ...bmarkNode, state: { opened: BookmarksBarOpen } };
-    } else if (bmarkNode.id === "2") {
-      return { ...bmarkNode, state: { opened: OtherBookmarksOpen } };
-    } else if (bmarkNode.id === "3") {
-      return { ...bmarkNode, state: { opened: MobileBookmarksOpen } };
+    if (openStates.hasOwnProperty(bmarkNode.id)) {
+      return {
+        ...bmarkNode,
+        state: { ...bmarkNode.state, opened: openStates[bmarkNode.id] },
+      };
     }
     return bmarkNode;
   });
@@ -101,6 +89,8 @@ function jsTreeSetup3InitState(bookmarkData) {
   if (RenamingTestingFolderOpen && pathToTestNode) {
     bmarksArrJSTree1 = markNodesAsOpened(bmarksArrJSTree1, pathToTestNode);
   }
+
+  console.log("bmarksArrJSTree1: ", bmarksArrJSTree1);
 
   jsTreeInstance.settings.core.data = bmarksArrJSTree1;
   jsTreeInstance.refresh();

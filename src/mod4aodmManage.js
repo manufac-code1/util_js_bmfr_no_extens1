@@ -22,7 +22,7 @@ function generateDictionaryFromArray(array) {
 
     // Log the first 10 items
     if (logCounter < 10) {
-      console.log(`Item ${logCounter + 1}:`, node);
+      // console.log(`Item ${logCounter + 1}:`, node);
       logCounter++;
     }
   });
@@ -41,12 +41,12 @@ export function updateArrayAndDict(array, dict, newBookmarkData) {
   );
   array.push(...bmarksMainAO); // Update the array with new data
   const bmarksMainDM = generateDictionaryFromArray(bmarksMainAO); // Generate the dictionary from the updated array
-  console.log("🟪 3. from updateArrayAndDict, bmarksMainAO: ", bmarksMainAO);
+  // console.log("🟪 3. from updateArrayAndDict, bmarksMainAO: ", bmarksMainAO);
   return { bmarksMainAO, bmarksMainDM };
 }
 
 export function markNodesAsOpened(nodes, path) {
-  console.log("🟪 4. from markNodesAsOpened, nodes: ", nodes);
+  // console.log("🟪 4. from markNodesAsOpened, nodes: ", nodes);
   if (path.length === 0) {
     return nodes;
   }
@@ -65,7 +65,7 @@ export function markNodesAsOpened(nodes, path) {
 }
 
 export function setNodeState(nodes, nodeId, newState) {
-  console.log("🟪 5. from setNodeState, nodes: ", nodes);
+  // console.log("🟪 5. from setNodeState, nodes: ", nodes);
   for (const node of nodes) {
     if (node.id === nodeId) {
       node.state = { opened: newState };
@@ -105,5 +105,5 @@ export function findPathToNode(nodes, nodeId) {
 // Function to log first 10 items
 export function logFirst10Items(dictionary) {
   const first10Items = Object.entries(dictionary).slice(0, 10);
-  console.log("First 10 items in the dictionary:", first10Items);
+  // console.log("First 10 items in the dictionary:", first10Items);
 }

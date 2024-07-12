@@ -1,29 +1,7 @@
-import {
-  updateArrayAndDict,
-  // findPathToNode,
-  // setAODMData,
-  // markNodesAsOpened,
-} from "./mod4aodmManage.js";
+import { updateArrayAndDict } from "./mod4aodmManage.js";
 import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
 let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
-
-// Define initializeAODM function
-// function initializeAODM(data) {
-//   // const bmarksArrP1InitFormat = bmarksProc1FormatForJsTree(data);
-//   // const bmarksArrP2Parsed = bmarksProc2Parse(bmarksArrP1InitFormat);
-//   // const bmarksArrP3Cleaned = bmarksProc3Clean(bmarksArrP2Parsed);
-//   // const bmarksArrP4Renamed = bmarksProc4Rename(bmarksArrP3Cleaned);
-//   // const bmarksArrayInitialEmpty = [];
-//   // const { bmarksMainAO, bmarksMainDM } = updateArrayAndDict(
-//   //   bmarksArrayInitialEmpty,
-//   //   bmarksDictInitial, // Use global variable
-//   //   bmarksArrP3Renamed
-//   // );
-//   // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId);
-//   // const bmarksArrJSTree1 = prepareJSTreeNodes(bmarksMainAO, pathToTestNode);
-//   // jsTreeSetup(bmarksArrJSTree1);
-// }
 
 export async function loadAndProcessBookmarkData() {
   try {
@@ -135,11 +113,5 @@ export function bmarksProc4Rename(sst) {
 
 async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
   bmarksDictInitial = bmarksMainDM; // Use global variable
-  // console.log("AODM (bmarksMainAO):", bmarksMainAO);
-  // console.log("AODM Dictionary Map (bmarksMainDM):", bmarksMainDM);
-
-  // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId); // Find the path to the specific node
-
-  // setAODMData(bmarksDictInitial); // Ensure this is being called correctly
   jsTreeSetup(bmarksMainAO); // Ensure jsTree is set up with the processed data
 }
