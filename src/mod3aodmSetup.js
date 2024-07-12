@@ -1,8 +1,8 @@
 import {
   updateArrayAndDict,
-  findPathToNode,
-  setAODMData,
-  markNodesAsOpened,
+  // findPathToNode,
+  // setAODMData,
+  // markNodesAsOpened,
 } from "./mod4aodmManage.js";
 import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
@@ -140,6 +140,6 @@ async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
 
   // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId); // Find the path to the specific node
 
-  setAODMData(bmarksDictInitial); // Ensure this is being called correctly
+  // setAODMData(bmarksDictInitial); // Ensure this is being called correctly
   jsTreeSetup(bmarksMainAO); // Ensure jsTree is set up with the processed data
 }

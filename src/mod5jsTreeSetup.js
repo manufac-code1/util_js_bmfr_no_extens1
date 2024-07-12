@@ -13,7 +13,7 @@ import { jsTreeSetup4EventHandlers } from "./mod6jsTreeManage.js"; // Ensure cor
 // User-declared variables for initial open/close state
 const BookmarksBarOpen = false;
 const OtherBookmarksOpen = false;
-const MobileBookmarksOpen = false;
+const MobileBookmarksOpen = true;
 const RenamingTestingFolderOpen = true;
 const renamingTestFolderId = "33645";
 
