@@ -8,17 +8,6 @@ import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
 let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
 
-async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
-  bmarksDictInitial = bmarksMainDM; // Use global variable
-  // console.log("AODM (bmarksMainAO):", bmarksMainAO);
-  // console.log("AODM Dictionary Map (bmarksMainDM):", bmarksMainDM);
-
-  // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId); // Find the path to the specific node
-
-  setAODMData(bmarksDictInitial); // Ensure this is being called correctly
-  jsTreeSetup(bmarksMainAO); // Ensure jsTree is set up with the processed data
-}
-
 // Define initializeAODM function
 // function initializeAODM(data) {
 //   // const bmarksArrP1InitFormat = bmarksProc1FormatForJsTree(data);
@@ -67,6 +56,10 @@ export function bmarksProc1FormatForJsTree(node) {
     text: node.title || "Untitled", // Use a default value if node.title is not defined
     textPrev: node.title || "Untitled",
     textCand: "", // Add textCand with an initial empty string
+    textBmarkTitleCleaned: "", // Add textBmarkTitleCleaned with an initial empty string
+    selectedPrev: false, // Add selectedPrev with an initial false value
+    openedPrev: false, // Add openedPrev with an initial false value
+    checkedPrev: false, // Add checkedPrev with an initial false value
     children: node.children
       .filter((child) => typeof child === "object" && child !== null)
       .map((child) => bmarksProc1FormatForJsTree(child)),
@@ -88,7 +81,11 @@ export function bmarksProc2Parse(data) {
       children: children,
       textPrev: node.text || null,
       textCand: "", // Add textCand with an initial empty string
+      textBmarkTitleCleaned: "", // Add textBmarkTitleCleaned with an initial empty string
       state: { opened: false, selected: false, checked: false },
+      selectedPrev: false, // Add selectedPrev with an initial false value
+      openedPrev: false, // Add openedPrev with an initial false value
+      checkedPrev: false, // Add checkedPrev with an initial false value
     };
   });
 }
@@ -102,7 +99,7 @@ export function bmarksProc3Clean(data) {
     if (node.title) {
       title = node.title;
     } else {
-      title = node.url ? "Unnamed Bookmark" : "New Folder";
+      title = node.url ? "Unnamed Bookmark" : "New Folder"; // Corrected here
     }
 
     return {
@@ -110,11 +107,12 @@ export function bmarksProc3Clean(data) {
       title: title,
       textPrev: node.textPrev || title,
       textCand: "", // Add textCand with an initial empty string
-      state: node.state || { opened: false },
+      textBmarkTitleCleaned: "", // Add textBmarkTitleCleaned with an initial empty string
+      state: node.state || { opened: false, selected: false, checked: false },
       children: node.children ? bmarksProc3Clean(node.children) : [],
-      isSelected: node.isSelected || false,
-      isSelectedPrev: node.isSelectedPrev || false,
-      isChecked: node.isChecked || false, // Include isChecked
+      selectedPrev: node.selectedPrev || false, // Include selectedPrev
+      openedPrev: node.openedPrev || false, // Include openedPrev
+      checkedPrev: node.checkedPrev || false, // Include checkedPrev
     };
   });
 }
@@ -133,4 +131,15 @@ export function bmarksProc4Rename(sst) {
     }
   });
   return sst;
+}
+
+async function initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM) {
+  bmarksDictInitial = bmarksMainDM; // Use global variable
+  // console.log("AODM (bmarksMainAO):", bmarksMainAO);
+  // console.log("AODM Dictionary Map (bmarksMainDM):", bmarksMainDM);
+
+  // const pathToTestNode = findPathToNode(bmarksMainAO, renamingTestFolderId); // Find the path to the specific node
+
+  setAODMData(bmarksDictInitial); // Ensure this is being called correctly
+  jsTreeSetup(bmarksMainAO); // Ensure jsTree is set up with the processed data
 }
