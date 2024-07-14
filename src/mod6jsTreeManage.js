@@ -1,4 +1,3 @@
-import { bmarksProc1FormatForJsTree } from "./mod3aodmSetup.js";
 import { setNodeState, bmarksMainAO } from "./mod4aodmManage.js";
 import { jsTreeInstance } from "./mod5jsTreeSetup.js";
 

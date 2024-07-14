@@ -23,11 +23,18 @@
     "prettier": "^3.3.2",
     "style-loader": "^4.0.0",
     "webpack": "^5.92.1",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.15.2"
   },
   "dependencies": {
     "fs": "^0.0.1-security",
     "path": "^0.12.7"
+  },
+  "resolutions": {
+    "requirejs": "^2.3.6",
+    "module-lookup-amd": "^4.0.0",
+    "filing-cabinet": "^1.2.2",
+    "dependency-tree": "^5.2.0"
   }
 }

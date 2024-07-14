@@ -1,8 +1,4 @@
-import {
-  updateArrayAndDict,
-  setNodeState,
-  bmarksMainAO,
-} from "./mod4aodmManage.js";
+import { setNodeState, bmarksMainAO } from "./mod4aodmManage.js";
 import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
 let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
@@ -44,6 +40,18 @@ export async function loadAndProcessBookmarkData() {
     console.error("Error fetching or processing JSON data:", error);
   }
 }
+
+// function updateArrayAndDictInit(array, dict, newBookmarkData) {
+//   array.length = 0;
+//   for (let key in dict) delete dict[key];
+
+//   const bmarksMainAO = newBookmarkData.map((node) =>
+//     bmarksProc1FormatForJsTree(node)
+//   );
+//   array.push(...bmarksMainAO);
+//   const bmarksMainDM = generateDictionaryFromArray(bmarksMainAO);
+//   return { bmarksMainAO, bmarksMainDM };
+// }
 
 function logNodeState(nodes, nodeId) {
   console.log("test");
