@@ -1,4 +1,8 @@
-import { updateArrayAndDict } from "./mod4aodmManage.js";
+import {
+  updateArrayAndDict,
+  setNodeState,
+  bmarksMainAO,
+} from "./mod4aodmManage.js";
 import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
 let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
@@ -20,9 +24,58 @@ export async function loadAndProcessBookmarkData() {
       bmarksArrP4Renamed
     );
 
+    // Log the initial state
+    console.log("🟫 3a. Initial bmarksMainAO:", bmarksMainAO);
+
+    // Confirm function call and check parameters
+    console.log("Calling logNodeState with bmarksMainAO and nodeId '1'");
+    logNodeState(bmarksMainAO, "1");
+
+    setNodeState(bmarksMainAO, "1", "selected", true);
+
+    console.log("🟫 3c. State of Bookmarks Bar node after selection:");
+    logNodeState(bmarksMainAO, "1");
+
+    // Check the result in the console
+    console.log("🟫 3d. Updated bmarksMainAO after selection:", bmarksMainAO);
+
     await initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM);
   } catch (error) {
     console.error("Error fetching or processing JSON data:", error);
+  }
+}
+
+function logNodeState(nodes, nodeId) {
+  console.log("test"); // Checking if this line is executed
+  console.log(
+    "🟫 3f. logNodeState called with nodes:",
+    nodes,
+    "and nodeId:",
+    nodeId
+  ); // Confirm function call
+
+  if (!Array.isArray(nodes)) {
+    console.error("Invalid nodes array:", nodes); // Log if nodes is not an array
+    return;
+  }
+  if (typeof nodeId !== "string") {
+    console.error("Invalid nodeId:", nodeId); // Log if nodeId is not a string
+    return;
+  }
+
+  // Add a log to print out the nodes array
+  console.log("🟫 3g. Nodes array:", JSON.stringify(nodes, null, 2));
+
+  for (const node of nodes) {
+    console.log("🟫 3h. Checking node:", node); // Log each node being checked
+    if (node.id === nodeId) {
+      console.log(`🟫 3i. State of node ${nodeId}:`, node.state); // Log state if node is found
+      return;
+    }
+    if (node.children) {
+      console.log(`🟫 3j. Node ${node.id} has children, traversing...`); // Log traversal into children
+      logNodeState(node.children, nodeId);
+    }
   }
 }
 

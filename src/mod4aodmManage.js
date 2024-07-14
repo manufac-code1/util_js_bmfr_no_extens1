@@ -1,6 +1,7 @@
 import { bmarksProc1FormatForJsTree } from "./mod3aodmSetup.js";
 
 let bmarksDictInitial = {};
+let bmarksMainAO = []; // Initialize bmarksMainAO here
 let logCounter = 0; // Counter to keep track of logged items
 
 // Getting child nodes of a given parent ID, for integration into the AODM
@@ -36,7 +37,7 @@ export function updateArrayAndDict(array, dict, newBookmarkData) {
   array.length = 0; // Clear the array
   for (let key in dict) delete dict[key]; // Clear the dictionary
 
-  const bmarksMainAO = newBookmarkData.map((node) =>
+  bmarksMainAO = newBookmarkData.map((node) =>
     bmarksProc1FormatForJsTree(node)
   );
   array.push(...bmarksMainAO); // Update the array with new data
@@ -44,6 +45,8 @@ export function updateArrayAndDict(array, dict, newBookmarkData) {
   // console.log("🟪 3. from updateArrayAndDict, bmarksMainAO: ", bmarksMainAO);
   return { bmarksMainAO, bmarksMainDM };
 }
+
+export { bmarksMainAO }; // Export bmarksMainAO
 
 export function markNodesAsOpened(nodes, path) {
   // console.log("🟪 4. from markNodesAsOpened, nodes: ", nodes);
@@ -64,21 +67,29 @@ export function markNodesAsOpened(nodes, path) {
   });
 }
 
-export function setNodeState(nodes, nodeId, newState) {
-  // console.log("🟪 5. from setNodeState, nodes: ", nodes);
+export function setNodeState(nodes, nodeId, stateKey, newState) {
   for (const node of nodes) {
     if (node.id === nodeId) {
-      node.state = { opened: newState };
+      node.state[stateKey] = newState;
+      console.log(
+        `4ax Updated node ${nodeId} ${stateKey} state to ${newState}`
+      );
       if (newState && node.parent) {
-        setNodeState(nodes, node.parent, true);
+        setNodeState(nodes, node.parent, stateKey, true);
       }
       return;
     }
     if (node.children) {
-      setNodeState(node.children, nodeId, newState);
+      setNodeState(node.children, nodeId, stateKey, newState);
     }
   }
 }
+
+// Update the selected state of the node with ID "1"
+setNodeState(bmarksMainAO, "1", "selected", true);
+
+// Check the result in the console
+console.log("Updated bmarksMainAO: ", bmarksMainAO);
 
 export function findPathToNode(nodes, nodeId) {
   // console.log("🟪 6. from findPathToNode, nodes: ", nodes);
@@ -95,12 +106,6 @@ export function findPathToNode(nodes, nodeId) {
   }
   return null;
 }
-
-// export function setAODMData(bmarksDictInitial) {
-//   // Set the bmarksDictInitial object
-//   // Placeholder for any logic needed to set the bmarksDictInitial
-//   // console.log("🟩AODM Dictionary set:", bmarksDictInitial);
-// }
 
 // Function to log first 10 items
 export function logFirst10Items(dictionary) {
