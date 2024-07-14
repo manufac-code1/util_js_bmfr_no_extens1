@@ -1,4 +1,4 @@
-import { setNodeState, bmarksMainAO } from "./mod4aodmManage.js";
+import { updateArrayAndDict } from "./mod4aodmManage.js";
 import { jsTreeSetup } from "./mod5jsTreeSetup.js";
 
 let bmarksDictInitial = {}; // Global variable to store bookmark dictionary
@@ -20,79 +20,9 @@ export async function loadAndProcessBookmarkData() {
       bmarksArrP4Renamed
     );
 
-    // Log the initial state
-    console.log("🟫 3a. Initial bmarksMainAO:", bmarksMainAO);
-
-    // Confirm function call and check parameters
-    console.log("Calling logNodeState with bmarksMainAO and nodeId '1'");
-    logNodeState(bmarksMainAO, "1");
-
-    setNodeState(bmarksMainAO, "1", "selected", true);
-
-    console.log("🟫 3c. State of Bookmarks Bar node after selection:");
-    logNodeState(bmarksMainAO, "1");
-
-    // Check the result in the console
-    console.log("🟫 3d. Updated bmarksMainAO after selection:", bmarksMainAO);
-
     await initializeAODMWithProcessedData(bmarksMainAO, bmarksMainDM);
   } catch (error) {
     console.error("Error fetching or processing JSON data:", error);
-  }
-}
-
-// function updateArrayAndDictInit(array, dict, newBookmarkData) {
-//   array.length = 0;
-//   for (let key in dict) delete dict[key];
-
-//   const bmarksMainAO = newBookmarkData.map((node) =>
-//     bmarksProc1FormatForJsTree(node)
-//   );
-//   array.push(...bmarksMainAO);
-//   const bmarksMainDM = generateDictionaryFromArray(bmarksMainAO);
-//   return { bmarksMainAO, bmarksMainDM };
-// }
-
-function logNodeState(nodes, nodeId) {
-  console.log("test");
-  console.log(
-    "🟫 3f. logNodeState called with nodes:",
-    nodes,
-    "and nodeId:",
-    nodeId
-  );
-  console.log("🟫 3g. Type of nodeId:", typeof nodeId);
-
-  if (!Array.isArray(nodes)) {
-    console.error("Invalid nodes array:", nodes);
-    return;
-  }
-  if (typeof nodeId !== "string") {
-    console.error("Invalid nodeId:", nodeId);
-    nodeId = String(nodeId); // Force nodeId to be a string
-  }
-
-  console.log("🟫 3h. Nodes array:", JSON.stringify(nodes, null, 2));
-
-  let recursiveCount = 0;
-  for (const node of nodes) {
-    console.log("🟫 3i. Checking node:", node);
-    console.log(
-      `Checking node id: ${node.id} (type: ${typeof node.id}) against nodeId: ${nodeId} (type: ${typeof nodeId})`
-    );
-    if (node.id === nodeId) {
-      console.log(`🟫 3j. State of node ${nodeId}:`, node.state);
-      return;
-    }
-    if (node.children) {
-      console.log(`🟫 3k. Node ${node.id} has children, traversing...`);
-      logNodeState(node.children, nodeId);
-      recursiveCount++;
-      if (recursiveCount > 10) {
-        console.error("Recursive call limit reached!");
-        return;
-      }
-    }
   }
 }
 
