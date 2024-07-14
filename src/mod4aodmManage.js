@@ -68,12 +68,19 @@ export function markNodesAsOpened(nodes, path) {
 }
 
 export function setNodeState(nodes, nodeId, stateKey, newState) {
+  console.log(
+    "setNodeState called with nodes:",
+    JSON.stringify(nodes, null, 2)
+  );
+  console.log(
+    `setNodeState called with nodeId: ${nodeId}, stateKey: ${stateKey}, newState: ${newState}`
+  );
+
   for (const node of nodes) {
+    console.log("Checking node:", node);
     if (node.id === nodeId) {
       node.state[stateKey] = newState;
-      console.log(
-        `4ax Updated node ${nodeId} ${stateKey} state to ${newState}`
-      );
+      console.log(`Updated node ${nodeId} ${stateKey} state to ${newState}`);
       if (newState && node.parent) {
         setNodeState(nodes, node.parent, stateKey, true);
       }
@@ -83,6 +90,11 @@ export function setNodeState(nodes, nodeId, stateKey, newState) {
       setNodeState(node.children, nodeId, stateKey, newState);
     }
   }
+
+  console.log(
+    "Updated nodes after setNodeState:",
+    JSON.stringify(nodes, null, 2)
+  );
 }
 
 // Update the selected state of the node with ID "1"

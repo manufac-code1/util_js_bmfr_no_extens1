@@ -46,35 +46,44 @@ export async function loadAndProcessBookmarkData() {
 }
 
 function logNodeState(nodes, nodeId) {
-  console.log("test"); // Checking if this line is executed
+  console.log("test");
   console.log(
     "🟫 3f. logNodeState called with nodes:",
     nodes,
     "and nodeId:",
     nodeId
-  ); // Confirm function call
+  );
+  console.log("🟫 3g. Type of nodeId:", typeof nodeId);
 
   if (!Array.isArray(nodes)) {
-    console.error("Invalid nodes array:", nodes); // Log if nodes is not an array
+    console.error("Invalid nodes array:", nodes);
     return;
   }
   if (typeof nodeId !== "string") {
-    console.error("Invalid nodeId:", nodeId); // Log if nodeId is not a string
-    return;
+    console.error("Invalid nodeId:", nodeId);
+    nodeId = String(nodeId); // Force nodeId to be a string
   }
 
-  // Add a log to print out the nodes array
-  console.log("🟫 3g. Nodes array:", JSON.stringify(nodes, null, 2));
+  console.log("🟫 3h. Nodes array:", JSON.stringify(nodes, null, 2));
 
+  let recursiveCount = 0;
   for (const node of nodes) {
-    console.log("🟫 3h. Checking node:", node); // Log each node being checked
+    console.log("🟫 3i. Checking node:", node);
+    console.log(
+      `Checking node id: ${node.id} (type: ${typeof node.id}) against nodeId: ${nodeId} (type: ${typeof nodeId})`
+    );
     if (node.id === nodeId) {
-      console.log(`🟫 3i. State of node ${nodeId}:`, node.state); // Log state if node is found
+      console.log(`🟫 3j. State of node ${nodeId}:`, node.state);
       return;
     }
     if (node.children) {
-      console.log(`🟫 3j. Node ${node.id} has children, traversing...`); // Log traversal into children
+      console.log(`🟫 3k. Node ${node.id} has children, traversing...`);
       logNodeState(node.children, nodeId);
+      recursiveCount++;
+      if (recursiveCount > 10) {
+        console.error("Recursive call limit reached!");
+        return;
+      }
     }
   }
 }
