@@ -10,13 +10,18 @@ module.exports = {
   ],
   options: {
     doNotFollow: {
-      path: "node_modules|libs|src/mod2State.js|src/mod1ConfigBasic.js|src/mod9Index_offload.js|data|index.css",
+      path: "node_modules|libs|data",
     },
     exclude: {
-      path: "node_modules|libs|src/mod2State.js|src/mod1ConfigBasic.js|src/mod9Index_offload.js|data|index.css",
+      path: "node_modules|libs|data|index.css",
     },
     tsPreCompilationDeps: true,
     combinedDependencies: true,
+    babelConfig: {
+      parserOpts: {
+        plugins: ["dynamicImport"],
+      },
+    },
     reporterOptions: {
       dot: {
         collapsePattern: "node_modules/[^/]+",

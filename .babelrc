@@ -1,5 +1,21 @@
 {
   "presets": [
     "@babel/preset-env"
+  ],
+  "plugins": [
+    [
+      "module-resolver",
+      {
+        "root": [
+          "./src"
+        ],
+        "alias": {
+          "@mod3": "./src/mod3aodmSetup",
+          "@mod4": "./src/mod4aodmManage",
+          "@mod5": "./src/mod5jsTreeSetup",
+          "@mod6": "./src/mod6jsTreeManage"
+        }
+      }
+    ]
   ]
 }
